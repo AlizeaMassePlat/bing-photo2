@@ -148,7 +148,7 @@ func (s *authServer) GoogleAuthCallback(ctx context.Context, req *proto.GoogleAu
 		return &proto.GoogleAuthCallbackResponse{Message: "Échec de la récupération du profil Google"}, err
 	}
 
-	// Appelle la méthode que tu viens d’ajouter
+	// Appelle la méthode que tu viens d'ajouter
 	jwtToken, err := s.authService.LoginOrCreateGoogleUser(userInfo)
 	if err != nil {
 		return &proto.GoogleAuthCallbackResponse{Message: "Login ou création échouée"}, err

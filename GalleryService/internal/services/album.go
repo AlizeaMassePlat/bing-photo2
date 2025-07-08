@@ -131,7 +131,6 @@ func (s *AlbumService) DeleteAlbum(albumID uint) error {
 }
 
 
-
 // Méthode publique appelée par le gRPC
 func (s *AlbumService) GetPrivateAlbum(userID uint, albumType string) (*models.Album, error) {
 	if albumType == "main" {

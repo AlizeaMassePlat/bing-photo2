@@ -237,7 +237,7 @@ func (fs *FileStorage) CreateBucket(bucketName string) error {
 // Récupération d'un objet dans un bucket
 func (fs *FileStorage) GetObject(bucketName, objectName string) ([]byte, dto.FileInfo, error) {
 	objectPath := filepath.Join(storageRoot, bucketName, objectName)
-	// log.Printf("Tentative de récupération de l'objet : %s", objectPath)
+	log.Printf("Tentative de récupération de l'objet : %s", objectPath)
 
 	// Lire le fichier
 	data, err := os.ReadFile(objectPath)
