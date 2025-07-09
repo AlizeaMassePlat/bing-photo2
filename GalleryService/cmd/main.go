@@ -27,9 +27,11 @@ type galleryServer struct {
 	proto.UnimplementedAlbumServiceServer
 	proto.UnimplementedMediaServiceServer
 	proto.UnimplementedUserServiceServer
-	albumService *services.AlbumService
-	mediaService *services.MediaService
-	userService  *services.UserService
+	proto.UnimplementedConsentServiceServer
+	albumService   *services.AlbumService
+	mediaService   *services.MediaService
+	userService    *services.UserService
+	consentService *services.ConsentService
 }
 
 // Album Service methods
@@ -272,6 +274,7 @@ func (s *galleryServer) DetectSimilarMedia(ctx context.Context, req *proto.Detec
 				Name:     m.Name,
 				AlbumId:  uint32(m.AlbumID),
 				FileSize: uint32(m.FileSize),
+				Path:     m.Path,
 			})
 		}
 		protoGroups = append(protoGroups, &proto.MediaGroup{Media: protoMedia})
@@ -329,6 +332,164 @@ func (s *galleryServer) MoveMediaToAlbum(ctx context.Context, req *proto.MoveMed
 	return &proto.MoveMediaResponse{Message: "Média déplacé avec succès"}, nil
 }
 
+// Consent Service methods
+func (s *galleryServer) AddConsent(ctx context.Context, req *proto.AddConsentRequest) (*proto.AddConsentResponse, error) {
+	// Extraire le userID depuis le contexte
+	userID, err := jwt.ExtractUserIDFromContext(ctx)
+	if err != nil {
+		log.Printf("Impossible d'extraire le userID : %v", err)
+		return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
+	}
+
+	consentReq := &services.ConsentRequest{
+		ConsentType:    req.ConsentType,
+		ConsentVersion: req.ConsentVersion,
+		IsGranted:      req.IsGranted,
+		ConsentText:    req.ConsentText,
+	}
+
+	// Créer une requête HTTP factice pour récupérer l'IP et User-Agent
+	// En gRPC, nous devons les passer via les métadonnées ou les paramètres
+	consent, err := s.consentService.AddConsent(userID, consentReq, nil)
+	if err != nil {
+		log.Printf("Error adding consent: %v", err)
+		return nil, status.Errorf(codes.Internal, "Erreur lors de l'ajout du consentement: %v", err)
+	}
+
+	protoConsent := &proto.Consent{
+		Id:             uint32(consent.ID),
+		ConsentType:    consent.ConsentType,
+		ConsentVersion: consent.ConsentVersion,
+		IsGranted:      consent.IsGranted,
+		ConsentText:    consent.ConsentText,
+		RevokedAt:      "",
+		CreatedAt:      consent.CreatedAt.Format("2006-01-02T15:04:05Z"),
+		UpdatedAt:      consent.UpdatedAt.Format("2006-01-02T15:04:05Z"),
+	}
+
+	if consent.RevokedAt != nil {
+		protoConsent.RevokedAt = consent.RevokedAt.Format("2006-01-02T15:04:05Z")
+	}
+
+	return &proto.AddConsentResponse{
+		Message:  "Consentement ajouté avec succès",
+		Consent:  protoConsent,
+	}, nil
+}
+
+func (s *galleryServer) GetUserConsents(ctx context.Context, req *proto.GetUserConsentsRequest) (*proto.GetUserConsentsResponse, error) {
+	// Extraire le userID depuis le contexte
+	userID, err := jwt.ExtractUserIDFromContext(ctx)
+	if err != nil {
+		log.Printf("Impossible d'extraire le userID : %v", err)
+		return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
+	}
+
+	consents, err := s.consentService.GetUserConsents(userID)
+	if err != nil {
+		log.Printf("Error getting user consents: %v", err)
+		return nil, status.Errorf(codes.Internal, "Erreur lors de la récupération des consentements: %v", err)
+	}
+
+	var protoConsents []*proto.Consent
+	for _, consent := range consents {
+		protoConsent := &proto.Consent{
+			Id:             uint32(consent.ID),
+			ConsentType:    consent.ConsentType,
+			ConsentVersion: consent.ConsentVersion,
+			IsGranted:      consent.IsGranted,
+			ConsentText:    consent.ConsentText,
+			RevokedAt:      "",
+			CreatedAt:      consent.CreatedAt.Format("2006-01-02T15:04:05Z"),
+			UpdatedAt:      consent.UpdatedAt.Format("2006-01-02T15:04:05Z"),
+		}
+
+		if consent.RevokedAt != nil {
+			protoConsent.RevokedAt = consent.RevokedAt.Format("2006-01-02T15:04:05Z")
+		}
+
+		protoConsents = append(protoConsents, protoConsent)
+	}
+
+	return &proto.GetUserConsentsResponse{
+		Consents: protoConsents,
+		Count:    uint32(len(protoConsents)),
+	}, nil
+}
+
+func (s *galleryServer) GetActiveConsent(ctx context.Context, req *proto.GetActiveConsentRequest) (*proto.GetActiveConsentResponse, error) {
+	// Extraire le userID depuis le contexte
+	userID, err := jwt.ExtractUserIDFromContext(ctx)
+	if err != nil {
+		log.Printf("Impossible d'extraire le userID : %v", err)
+		return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
+	}
+
+	consent, err := s.consentService.GetActiveConsent(userID, req.ConsentType)
+	if err != nil {
+		log.Printf("Error getting active consent: %v", err)
+		return nil, status.Errorf(codes.NotFound, "Aucun consentement actif trouvé: %v", err)
+	}
+
+	protoConsent := &proto.Consent{
+		Id:             uint32(consent.ID),
+		ConsentType:    consent.ConsentType,
+		ConsentVersion: consent.ConsentVersion,
+		IsGranted:      consent.IsGranted,
+		ConsentText:    consent.ConsentText,
+		RevokedAt:      "",
+		CreatedAt:      consent.CreatedAt.Format("2006-01-02T15:04:05Z"),
+		UpdatedAt:      consent.UpdatedAt.Format("2006-01-02T15:04:05Z"),
+	}
+
+	if consent.RevokedAt != nil {
+		protoConsent.RevokedAt = consent.RevokedAt.Format("2006-01-02T15:04:05Z")
+	}
+
+	return &proto.GetActiveConsentResponse{
+		Consent: protoConsent,
+	}, nil
+}
+
+func (s *galleryServer) CheckConsent(ctx context.Context, req *proto.CheckConsentRequest) (*proto.CheckConsentResponse, error) {
+	// Extraire le userID depuis le contexte
+	userID, err := jwt.ExtractUserIDFromContext(ctx)
+	if err != nil {
+		log.Printf("Impossible d'extraire le userID : %v", err)
+		return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
+	}
+
+	hasConsent, err := s.consentService.HasValidConsent(userID, req.ConsentType)
+	if err != nil {
+		log.Printf("Error checking consent: %v", err)
+		return nil, status.Errorf(codes.Internal, "Erreur lors de la vérification du consentement: %v", err)
+	}
+
+	return &proto.CheckConsentResponse{
+		HasConsent:   hasConsent,
+		ConsentType:  req.ConsentType,
+	}, nil
+}
+
+func (s *galleryServer) RevokeConsent(ctx context.Context, req *proto.RevokeConsentRequest) (*proto.RevokeConsentResponse, error) {
+	// Extraire le userID depuis le contexte
+	userID, err := jwt.ExtractUserIDFromContext(ctx)
+	if err != nil {
+		log.Printf("Impossible d'extraire le userID : %v", err)
+		return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
+	}
+
+	err = s.consentService.RevokeConsent(userID, uint(req.ConsentId), nil)
+	if err != nil {
+		log.Printf("Error revoking consent: %v", err)
+		return nil, status.Errorf(codes.Internal, "Erreur lors de la révocation du consentement: %v", err)
+	}
+
+	return &proto.RevokeConsentResponse{
+		Message: "Consentement révoqué avec succès",
+	}, nil
+}
+
 
 func main() {
 	// Load environment variables
@@ -356,7 +517,8 @@ func main() {
 
 	// Initialize services
 	albumService := services.NewAlbumService(dbManager, s3Service)
-	mediaService := services.NewMediaService(dbManager, s3Service)
+	consentService := services.NewConsentService(dbManager)
+	mediaService := services.NewMediaService(dbManager, s3Service, consentService)
 	userService := services.NewUserService(dbManager, s3Service)
 
 	// Initialiser le service JWT
@@ -378,6 +540,11 @@ func main() {
 		"/proto.MediaService/DeleteMedia":     true,
 		"/proto.MediaService/GetMediaByAlbum": true,
 		"/proto.MediaService/MoveMediaToAlbum": true,
+		"/proto.ConsentService/AddConsent":    true,
+		"/proto.ConsentService/GetUserConsents": true,
+		"/proto.ConsentService/GetActiveConsent": true,
+		"/proto.ConsentService/CheckConsent":  true,
+		"/proto.ConsentService/RevokeConsent": true,
 	}
 
 	// Créer le serveur gRPC avec intercepteur JWT
@@ -386,15 +553,17 @@ func main() {
 	)
 
 	galleryServer := &galleryServer{
-		albumService: albumService,
-		mediaService: mediaService,
-		userService:  userService,
+		albumService:   albumService,
+		mediaService:   mediaService,
+		userService:    userService,
+		consentService: consentService,
 	}
 
 	// Enregistrer les services gRPC
 	proto.RegisterAlbumServiceServer(grpcServer, galleryServer)
 	proto.RegisterMediaServiceServer(grpcServer, galleryServer)
 	proto.RegisterUserServiceServer(grpcServer, galleryServer)
+	proto.RegisterConsentServiceServer(grpcServer, galleryServer)
 
 	// Démarrer le serveur gRPC
 	grpcListener, err := net.Listen("tcp", ":50052")

@@ -15,13 +15,15 @@ import (
 type MediaService struct {
 	DBManager *db.DBManagerService
 	S3Service *S3Service
+	ConsentService *ConsentService
 }
 
 // NewMediaService initialise un MediaService
-func NewMediaService(dbManager *db.DBManagerService, s3Service *S3Service) *MediaService {
+func NewMediaService(dbManager *db.DBManagerService, s3Service *S3Service, consentService *ConsentService) *MediaService {
 	return &MediaService{
 		DBManager: dbManager,
 		S3Service: s3Service,
+		ConsentService: consentService,
 	}
 }
 func (s *MediaService) AddMedia(media *models.Media, file io.Reader, fileSize int64) error {
@@ -255,17 +257,29 @@ func (s *MediaService) DeleteMedia(mediaID uint, userID uint) error {
         return fmt.Errorf("échec de la suppression du média dans S3 : %v", err)
     }
 
-    // Supprimer le média de la base de données
+    // Supprimer le média de la base de données (le pHash sera automatiquement supprimé)
     if err := s.DBManager.DB.Delete(&media).Error; err != nil {
         return fmt.Errorf("échec de la suppression du média de la base de données : %v", err)
     }
 
-    log.Printf("Média supprimé avec succès : mediaID=%d, path=%s", mediaID, media.Path)
+    log.Printf("Média et pHash supprimés avec succès : mediaID=%d, path=%s", mediaID, media.Path)
     return nil
 }
 
 func (s *MediaService) DetectSimilarMedia(userID uint, albumID uint) ([][]models.Media, error) {
 	log.Printf("Début de la détection de médias similaires pour userID=%d, albumID=%d", userID, albumID)
+
+	// Étape 0 : Vérification du consentement RGPD pour la détection d'images similaires
+	hasConsent, err := s.ConsentService.HasValidConsent(userID, "image_similarity_detection")
+	if err != nil {
+		log.Printf("Erreur lors de la vérification du consentement : %v", err)
+		return nil, fmt.Errorf("erreur lors de la vérification du consentement RGPD : %v", err)
+	}
+	if !hasConsent {
+		log.Printf("Consentement RGPD manquant pour la détection d'images similaires, userID: %d", userID)
+		return nil, fmt.Errorf("consentement RGPD requis pour la détection d'images similaires. Veuillez accepter les conditions de traitement des données personnelles")
+	}
+	log.Printf("Consentement RGPD validé pour la détection d'images similaires")
 
 	// Étape 1 : Vérification de l'accès à l'album
 	var album models.Album

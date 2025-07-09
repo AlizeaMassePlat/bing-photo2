@@ -1811,6 +1811,619 @@ func (x *MoveMediaResponse) GetMessage() string {
 	return ""
 }
 
+// Consent messages
+type AddConsentRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ConsentType    string                 `protobuf:"bytes,1,opt,name=consent_type,json=consentType,proto3" json:"consent_type,omitempty"`
+	ConsentVersion string                 `protobuf:"bytes,2,opt,name=consent_version,json=consentVersion,proto3" json:"consent_version,omitempty"`
+	IsGranted      bool                   `protobuf:"varint,3,opt,name=is_granted,json=isGranted,proto3" json:"is_granted,omitempty"`
+	ConsentText    string                 `protobuf:"bytes,4,opt,name=consent_text,json=consentText,proto3" json:"consent_text,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *AddConsentRequest) Reset() {
+	*x = AddConsentRequest{}
+	mi := &file_proto_gallery_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddConsentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddConsentRequest) ProtoMessage() {}
+
+func (x *AddConsentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddConsentRequest.ProtoReflect.Descriptor instead.
+func (*AddConsentRequest) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *AddConsentRequest) GetConsentType() string {
+	if x != nil {
+		return x.ConsentType
+	}
+	return ""
+}
+
+func (x *AddConsentRequest) GetConsentVersion() string {
+	if x != nil {
+		return x.ConsentVersion
+	}
+	return ""
+}
+
+func (x *AddConsentRequest) GetIsGranted() bool {
+	if x != nil {
+		return x.IsGranted
+	}
+	return false
+}
+
+func (x *AddConsentRequest) GetConsentText() string {
+	if x != nil {
+		return x.ConsentText
+	}
+	return ""
+}
+
+type AddConsentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Consent       *Consent               `protobuf:"bytes,2,opt,name=consent,proto3" json:"consent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddConsentResponse) Reset() {
+	*x = AddConsentResponse{}
+	mi := &file_proto_gallery_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddConsentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddConsentResponse) ProtoMessage() {}
+
+func (x *AddConsentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddConsentResponse.ProtoReflect.Descriptor instead.
+func (*AddConsentResponse) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *AddConsentResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *AddConsentResponse) GetConsent() *Consent {
+	if x != nil {
+		return x.Consent
+	}
+	return nil
+}
+
+type GetUserConsentsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserConsentsRequest) Reset() {
+	*x = GetUserConsentsRequest{}
+	mi := &file_proto_gallery_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserConsentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserConsentsRequest) ProtoMessage() {}
+
+func (x *GetUserConsentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserConsentsRequest.ProtoReflect.Descriptor instead.
+func (*GetUserConsentsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *GetUserConsentsRequest) GetUserId() uint32 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type GetUserConsentsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Consents      []*Consent             `protobuf:"bytes,1,rep,name=consents,proto3" json:"consents,omitempty"`
+	Count         uint32                 `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserConsentsResponse) Reset() {
+	*x = GetUserConsentsResponse{}
+	mi := &file_proto_gallery_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserConsentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserConsentsResponse) ProtoMessage() {}
+
+func (x *GetUserConsentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserConsentsResponse.ProtoReflect.Descriptor instead.
+func (*GetUserConsentsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *GetUserConsentsResponse) GetConsents() []*Consent {
+	if x != nil {
+		return x.Consents
+	}
+	return nil
+}
+
+func (x *GetUserConsentsResponse) GetCount() uint32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+type GetActiveConsentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ConsentType   string                 `protobuf:"bytes,2,opt,name=consent_type,json=consentType,proto3" json:"consent_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetActiveConsentRequest) Reset() {
+	*x = GetActiveConsentRequest{}
+	mi := &file_proto_gallery_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetActiveConsentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetActiveConsentRequest) ProtoMessage() {}
+
+func (x *GetActiveConsentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetActiveConsentRequest.ProtoReflect.Descriptor instead.
+func (*GetActiveConsentRequest) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *GetActiveConsentRequest) GetUserId() uint32 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *GetActiveConsentRequest) GetConsentType() string {
+	if x != nil {
+		return x.ConsentType
+	}
+	return ""
+}
+
+type GetActiveConsentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Consent       *Consent               `protobuf:"bytes,1,opt,name=consent,proto3" json:"consent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetActiveConsentResponse) Reset() {
+	*x = GetActiveConsentResponse{}
+	mi := &file_proto_gallery_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetActiveConsentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetActiveConsentResponse) ProtoMessage() {}
+
+func (x *GetActiveConsentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetActiveConsentResponse.ProtoReflect.Descriptor instead.
+func (*GetActiveConsentResponse) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *GetActiveConsentResponse) GetConsent() *Consent {
+	if x != nil {
+		return x.Consent
+	}
+	return nil
+}
+
+type CheckConsentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ConsentType   string                 `protobuf:"bytes,2,opt,name=consent_type,json=consentType,proto3" json:"consent_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckConsentRequest) Reset() {
+	*x = CheckConsentRequest{}
+	mi := &file_proto_gallery_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckConsentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckConsentRequest) ProtoMessage() {}
+
+func (x *CheckConsentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckConsentRequest.ProtoReflect.Descriptor instead.
+func (*CheckConsentRequest) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *CheckConsentRequest) GetUserId() uint32 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *CheckConsentRequest) GetConsentType() string {
+	if x != nil {
+		return x.ConsentType
+	}
+	return ""
+}
+
+type CheckConsentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	HasConsent    bool                   `protobuf:"varint,1,opt,name=has_consent,json=hasConsent,proto3" json:"has_consent,omitempty"`
+	ConsentType   string                 `protobuf:"bytes,2,opt,name=consent_type,json=consentType,proto3" json:"consent_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckConsentResponse) Reset() {
+	*x = CheckConsentResponse{}
+	mi := &file_proto_gallery_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckConsentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckConsentResponse) ProtoMessage() {}
+
+func (x *CheckConsentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckConsentResponse.ProtoReflect.Descriptor instead.
+func (*CheckConsentResponse) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *CheckConsentResponse) GetHasConsent() bool {
+	if x != nil {
+		return x.HasConsent
+	}
+	return false
+}
+
+func (x *CheckConsentResponse) GetConsentType() string {
+	if x != nil {
+		return x.ConsentType
+	}
+	return ""
+}
+
+type RevokeConsentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ConsentId     uint32                 `protobuf:"varint,2,opt,name=consent_id,json=consentId,proto3" json:"consent_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeConsentRequest) Reset() {
+	*x = RevokeConsentRequest{}
+	mi := &file_proto_gallery_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeConsentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeConsentRequest) ProtoMessage() {}
+
+func (x *RevokeConsentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeConsentRequest.ProtoReflect.Descriptor instead.
+func (*RevokeConsentRequest) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *RevokeConsentRequest) GetUserId() uint32 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *RevokeConsentRequest) GetConsentId() uint32 {
+	if x != nil {
+		return x.ConsentId
+	}
+	return 0
+}
+
+type RevokeConsentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeConsentResponse) Reset() {
+	*x = RevokeConsentResponse{}
+	mi := &file_proto_gallery_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeConsentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeConsentResponse) ProtoMessage() {}
+
+func (x *RevokeConsentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeConsentResponse.ProtoReflect.Descriptor instead.
+func (*RevokeConsentResponse) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *RevokeConsentResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type Consent struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ConsentType    string                 `protobuf:"bytes,2,opt,name=consent_type,json=consentType,proto3" json:"consent_type,omitempty"`
+	ConsentVersion string                 `protobuf:"bytes,3,opt,name=consent_version,json=consentVersion,proto3" json:"consent_version,omitempty"`
+	IsGranted      bool                   `protobuf:"varint,4,opt,name=is_granted,json=isGranted,proto3" json:"is_granted,omitempty"`
+	ConsentText    string                 `protobuf:"bytes,5,opt,name=consent_text,json=consentText,proto3" json:"consent_text,omitempty"`
+	RevokedAt      string                 `protobuf:"bytes,6,opt,name=revoked_at,json=revokedAt,proto3" json:"revoked_at,omitempty"`
+	CreatedAt      string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      string                 `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *Consent) Reset() {
+	*x = Consent{}
+	mi := &file_proto_gallery_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Consent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Consent) ProtoMessage() {}
+
+func (x *Consent) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Consent.ProtoReflect.Descriptor instead.
+func (*Consent) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *Consent) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Consent) GetConsentType() string {
+	if x != nil {
+		return x.ConsentType
+	}
+	return ""
+}
+
+func (x *Consent) GetConsentVersion() string {
+	if x != nil {
+		return x.ConsentVersion
+	}
+	return ""
+}
+
+func (x *Consent) GetIsGranted() bool {
+	if x != nil {
+		return x.IsGranted
+	}
+	return false
+}
+
+func (x *Consent) GetConsentText() string {
+	if x != nil {
+		return x.ConsentText
+	}
+	return ""
+}
+
+func (x *Consent) GetRevokedAt() string {
+	if x != nil {
+		return x.RevokedAt
+	}
+	return ""
+}
+
+func (x *Consent) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *Consent) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
 var File_proto_gallery_proto protoreflect.FileDescriptor
 
 const file_proto_gallery_proto_rawDesc = "" +
@@ -1916,7 +2529,52 @@ const file_proto_gallery_proto_rawDesc = "" +
 	"\bmedia_id\x18\x01 \x01(\rR\amediaId\x12&\n" +
 	"\x0ftarget_album_id\x18\x02 \x01(\rR\rtargetAlbumId\"-\n" +
 	"\x11MoveMediaResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\x84\x03\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xa1\x01\n" +
+	"\x11AddConsentRequest\x12!\n" +
+	"\fconsent_type\x18\x01 \x01(\tR\vconsentType\x12'\n" +
+	"\x0fconsent_version\x18\x02 \x01(\tR\x0econsentVersion\x12\x1d\n" +
+	"\n" +
+	"is_granted\x18\x03 \x01(\bR\tisGranted\x12!\n" +
+	"\fconsent_text\x18\x04 \x01(\tR\vconsentText\"X\n" +
+	"\x12AddConsentResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12(\n" +
+	"\aconsent\x18\x02 \x01(\v2\x0e.proto.ConsentR\aconsent\"1\n" +
+	"\x16GetUserConsentsRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\rR\x06userId\"[\n" +
+	"\x17GetUserConsentsResponse\x12*\n" +
+	"\bconsents\x18\x01 \x03(\v2\x0e.proto.ConsentR\bconsents\x12\x14\n" +
+	"\x05count\x18\x02 \x01(\rR\x05count\"U\n" +
+	"\x17GetActiveConsentRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\rR\x06userId\x12!\n" +
+	"\fconsent_type\x18\x02 \x01(\tR\vconsentType\"D\n" +
+	"\x18GetActiveConsentResponse\x12(\n" +
+	"\aconsent\x18\x01 \x01(\v2\x0e.proto.ConsentR\aconsent\"Q\n" +
+	"\x13CheckConsentRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\rR\x06userId\x12!\n" +
+	"\fconsent_type\x18\x02 \x01(\tR\vconsentType\"Z\n" +
+	"\x14CheckConsentResponse\x12\x1f\n" +
+	"\vhas_consent\x18\x01 \x01(\bR\n" +
+	"hasConsent\x12!\n" +
+	"\fconsent_type\x18\x02 \x01(\tR\vconsentType\"N\n" +
+	"\x14RevokeConsentRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\rR\x06userId\x12\x1d\n" +
+	"\n" +
+	"consent_id\x18\x02 \x01(\rR\tconsentId\"1\n" +
+	"\x15RevokeConsentResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\x84\x02\n" +
+	"\aConsent\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\x12!\n" +
+	"\fconsent_type\x18\x02 \x01(\tR\vconsentType\x12'\n" +
+	"\x0fconsent_version\x18\x03 \x01(\tR\x0econsentVersion\x12\x1d\n" +
+	"\n" +
+	"is_granted\x18\x04 \x01(\bR\tisGranted\x12!\n" +
+	"\fconsent_text\x18\x05 \x01(\tR\vconsentText\x12\x1d\n" +
+	"\n" +
+	"revoked_at\x18\x06 \x01(\tR\trevokedAt\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\a \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\b \x01(\tR\tupdatedAt2\x84\x03\n" +
 	"\fAlbumService\x12D\n" +
 	"\vCreateAlbum\x12\x19.proto.CreateAlbumRequest\x1a\x1a.proto.CreateAlbumResponse\x12P\n" +
 	"\x0fGetAlbumsByUser\x12\x1d.proto.GetAlbumsByUserRequest\x1a\x1e.proto.GetAlbumsByUserResponse\x12D\n" +
@@ -1936,7 +2594,14 @@ const file_proto_gallery_proto_rawDesc = "" +
 	"\x10MoveMediaToAlbum\x12\x17.proto.MoveMediaRequest\x1a\x18.proto.MoveMediaResponse2P\n" +
 	"\vUserService\x12A\n" +
 	"\n" +
-	"CreateUser\x12\x18.proto.CreateUserRequest\x1a\x19.proto.CreateUserResponseB\x0eZ\f/proto;protob\x06proto3"
+	"CreateUser\x12\x18.proto.CreateUserRequest\x1a\x19.proto.CreateUserResponse2\x8f\x03\n" +
+	"\x0eConsentService\x12A\n" +
+	"\n" +
+	"AddConsent\x12\x18.proto.AddConsentRequest\x1a\x19.proto.AddConsentResponse\x12P\n" +
+	"\x0fGetUserConsents\x12\x1d.proto.GetUserConsentsRequest\x1a\x1e.proto.GetUserConsentsResponse\x12S\n" +
+	"\x10GetActiveConsent\x12\x1e.proto.GetActiveConsentRequest\x1a\x1f.proto.GetActiveConsentResponse\x12G\n" +
+	"\fCheckConsent\x12\x1a.proto.CheckConsentRequest\x1a\x1b.proto.CheckConsentResponse\x12J\n" +
+	"\rRevokeConsent\x12\x1b.proto.RevokeConsentRequest\x1a\x1c.proto.RevokeConsentResponseB\x0eZ\f/proto;protob\x06proto3"
 
 var (
 	file_proto_gallery_proto_rawDescOnce sync.Once
@@ -1950,7 +2615,7 @@ func file_proto_gallery_proto_rawDescGZIP() []byte {
 	return file_proto_gallery_proto_rawDescData
 }
 
-var file_proto_gallery_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
+var file_proto_gallery_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_proto_gallery_proto_goTypes = []any{
 	(*CreateAlbumRequest)(nil),         // 0: proto.CreateAlbumRequest
 	(*CreateAlbumResponse)(nil),        // 1: proto.CreateAlbumResponse
@@ -1988,6 +2653,17 @@ var file_proto_gallery_proto_goTypes = []any{
 	(*AddMediaToFavoriteResponse)(nil), // 33: proto.AddMediaToFavoriteResponse
 	(*MoveMediaRequest)(nil),           // 34: proto.MoveMediaRequest
 	(*MoveMediaResponse)(nil),          // 35: proto.MoveMediaResponse
+	(*AddConsentRequest)(nil),          // 36: proto.AddConsentRequest
+	(*AddConsentResponse)(nil),         // 37: proto.AddConsentResponse
+	(*GetUserConsentsRequest)(nil),     // 38: proto.GetUserConsentsRequest
+	(*GetUserConsentsResponse)(nil),    // 39: proto.GetUserConsentsResponse
+	(*GetActiveConsentRequest)(nil),    // 40: proto.GetActiveConsentRequest
+	(*GetActiveConsentResponse)(nil),   // 41: proto.GetActiveConsentResponse
+	(*CheckConsentRequest)(nil),        // 42: proto.CheckConsentRequest
+	(*CheckConsentResponse)(nil),       // 43: proto.CheckConsentResponse
+	(*RevokeConsentRequest)(nil),       // 44: proto.RevokeConsentRequest
+	(*RevokeConsentResponse)(nil),      // 45: proto.RevokeConsentResponse
+	(*Consent)(nil),                    // 46: proto.Consent
 }
 var file_proto_gallery_proto_depIdxs = []int32{
 	28, // 0: proto.AlbumWithMedia.media:type_name -> proto.Media
@@ -1999,43 +2675,56 @@ var file_proto_gallery_proto_depIdxs = []int32{
 	28, // 6: proto.Album.media:type_name -> proto.Media
 	28, // 7: proto.MediaGroup.media:type_name -> proto.Media
 	29, // 8: proto.DetectSimilarMediaResponse.groups:type_name -> proto.MediaGroup
-	0,  // 9: proto.AlbumService.CreateAlbum:input_type -> proto.CreateAlbumRequest
-	2,  // 10: proto.AlbumService.GetAlbumsByUser:input_type -> proto.GetAlbumsByUserRequest
-	5,  // 11: proto.AlbumService.UpdateAlbum:input_type -> proto.UpdateAlbumRequest
-	7,  // 12: proto.AlbumService.DeleteAlbum:input_type -> proto.DeleteAlbumRequest
-	9,  // 13: proto.AlbumService.GetPrivateAlbum:input_type -> proto.GetPrivateAlbumRequest
-	11, // 14: proto.MediaService.AddMedia:input_type -> proto.AddMediaRequest
-	13, // 15: proto.MediaService.GetMediaByUser:input_type -> proto.GetMediaByUserRequest
-	15, // 16: proto.MediaService.MarkAsPrivate:input_type -> proto.MarkAsPrivateRequest
-	17, // 17: proto.MediaService.GetPrivateMedia:input_type -> proto.GetPrivateMediaRequest
-	19, // 18: proto.MediaService.DownloadMedia:input_type -> proto.DownloadMediaRequest
-	21, // 19: proto.MediaService.DeleteMedia:input_type -> proto.DeleteMediaRequest
-	30, // 20: proto.MediaService.DetectSimilarMedia:input_type -> proto.DetectSimilarMediaRequest
-	32, // 21: proto.MediaService.AddMediaToFavorite:input_type -> proto.AddMediaToFavoriteRequest
-	25, // 22: proto.MediaService.GetMediaByAlbum:input_type -> proto.GetMediaByAlbumRequest
-	34, // 23: proto.MediaService.MoveMediaToAlbum:input_type -> proto.MoveMediaRequest
-	23, // 24: proto.UserService.CreateUser:input_type -> proto.CreateUserRequest
-	1,  // 25: proto.AlbumService.CreateAlbum:output_type -> proto.CreateAlbumResponse
-	4,  // 26: proto.AlbumService.GetAlbumsByUser:output_type -> proto.GetAlbumsByUserResponse
-	6,  // 27: proto.AlbumService.UpdateAlbum:output_type -> proto.UpdateAlbumResponse
-	8,  // 28: proto.AlbumService.DeleteAlbum:output_type -> proto.DeleteAlbumResponse
-	10, // 29: proto.AlbumService.GetPrivateAlbum:output_type -> proto.GetPrivateAlbumResponse
-	12, // 30: proto.MediaService.AddMedia:output_type -> proto.AddMediaResponse
-	14, // 31: proto.MediaService.GetMediaByUser:output_type -> proto.GetMediaByUserResponse
-	16, // 32: proto.MediaService.MarkAsPrivate:output_type -> proto.MarkAsPrivateResponse
-	18, // 33: proto.MediaService.GetPrivateMedia:output_type -> proto.GetPrivateMediaResponse
-	20, // 34: proto.MediaService.DownloadMedia:output_type -> proto.DownloadMediaResponse
-	22, // 35: proto.MediaService.DeleteMedia:output_type -> proto.DeleteMediaResponse
-	31, // 36: proto.MediaService.DetectSimilarMedia:output_type -> proto.DetectSimilarMediaResponse
-	33, // 37: proto.MediaService.AddMediaToFavorite:output_type -> proto.AddMediaToFavoriteResponse
-	26, // 38: proto.MediaService.GetMediaByAlbum:output_type -> proto.GetMediaByAlbumResponse
-	35, // 39: proto.MediaService.MoveMediaToAlbum:output_type -> proto.MoveMediaResponse
-	24, // 40: proto.UserService.CreateUser:output_type -> proto.CreateUserResponse
-	25, // [25:41] is the sub-list for method output_type
-	9,  // [9:25] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	46, // 9: proto.AddConsentResponse.consent:type_name -> proto.Consent
+	46, // 10: proto.GetUserConsentsResponse.consents:type_name -> proto.Consent
+	46, // 11: proto.GetActiveConsentResponse.consent:type_name -> proto.Consent
+	0,  // 12: proto.AlbumService.CreateAlbum:input_type -> proto.CreateAlbumRequest
+	2,  // 13: proto.AlbumService.GetAlbumsByUser:input_type -> proto.GetAlbumsByUserRequest
+	5,  // 14: proto.AlbumService.UpdateAlbum:input_type -> proto.UpdateAlbumRequest
+	7,  // 15: proto.AlbumService.DeleteAlbum:input_type -> proto.DeleteAlbumRequest
+	9,  // 16: proto.AlbumService.GetPrivateAlbum:input_type -> proto.GetPrivateAlbumRequest
+	11, // 17: proto.MediaService.AddMedia:input_type -> proto.AddMediaRequest
+	13, // 18: proto.MediaService.GetMediaByUser:input_type -> proto.GetMediaByUserRequest
+	15, // 19: proto.MediaService.MarkAsPrivate:input_type -> proto.MarkAsPrivateRequest
+	17, // 20: proto.MediaService.GetPrivateMedia:input_type -> proto.GetPrivateMediaRequest
+	19, // 21: proto.MediaService.DownloadMedia:input_type -> proto.DownloadMediaRequest
+	21, // 22: proto.MediaService.DeleteMedia:input_type -> proto.DeleteMediaRequest
+	30, // 23: proto.MediaService.DetectSimilarMedia:input_type -> proto.DetectSimilarMediaRequest
+	32, // 24: proto.MediaService.AddMediaToFavorite:input_type -> proto.AddMediaToFavoriteRequest
+	25, // 25: proto.MediaService.GetMediaByAlbum:input_type -> proto.GetMediaByAlbumRequest
+	34, // 26: proto.MediaService.MoveMediaToAlbum:input_type -> proto.MoveMediaRequest
+	23, // 27: proto.UserService.CreateUser:input_type -> proto.CreateUserRequest
+	36, // 28: proto.ConsentService.AddConsent:input_type -> proto.AddConsentRequest
+	38, // 29: proto.ConsentService.GetUserConsents:input_type -> proto.GetUserConsentsRequest
+	40, // 30: proto.ConsentService.GetActiveConsent:input_type -> proto.GetActiveConsentRequest
+	42, // 31: proto.ConsentService.CheckConsent:input_type -> proto.CheckConsentRequest
+	44, // 32: proto.ConsentService.RevokeConsent:input_type -> proto.RevokeConsentRequest
+	1,  // 33: proto.AlbumService.CreateAlbum:output_type -> proto.CreateAlbumResponse
+	4,  // 34: proto.AlbumService.GetAlbumsByUser:output_type -> proto.GetAlbumsByUserResponse
+	6,  // 35: proto.AlbumService.UpdateAlbum:output_type -> proto.UpdateAlbumResponse
+	8,  // 36: proto.AlbumService.DeleteAlbum:output_type -> proto.DeleteAlbumResponse
+	10, // 37: proto.AlbumService.GetPrivateAlbum:output_type -> proto.GetPrivateAlbumResponse
+	12, // 38: proto.MediaService.AddMedia:output_type -> proto.AddMediaResponse
+	14, // 39: proto.MediaService.GetMediaByUser:output_type -> proto.GetMediaByUserResponse
+	16, // 40: proto.MediaService.MarkAsPrivate:output_type -> proto.MarkAsPrivateResponse
+	18, // 41: proto.MediaService.GetPrivateMedia:output_type -> proto.GetPrivateMediaResponse
+	20, // 42: proto.MediaService.DownloadMedia:output_type -> proto.DownloadMediaResponse
+	22, // 43: proto.MediaService.DeleteMedia:output_type -> proto.DeleteMediaResponse
+	31, // 44: proto.MediaService.DetectSimilarMedia:output_type -> proto.DetectSimilarMediaResponse
+	33, // 45: proto.MediaService.AddMediaToFavorite:output_type -> proto.AddMediaToFavoriteResponse
+	26, // 46: proto.MediaService.GetMediaByAlbum:output_type -> proto.GetMediaByAlbumResponse
+	35, // 47: proto.MediaService.MoveMediaToAlbum:output_type -> proto.MoveMediaResponse
+	24, // 48: proto.UserService.CreateUser:output_type -> proto.CreateUserResponse
+	37, // 49: proto.ConsentService.AddConsent:output_type -> proto.AddConsentResponse
+	39, // 50: proto.ConsentService.GetUserConsents:output_type -> proto.GetUserConsentsResponse
+	41, // 51: proto.ConsentService.GetActiveConsent:output_type -> proto.GetActiveConsentResponse
+	43, // 52: proto.ConsentService.CheckConsent:output_type -> proto.CheckConsentResponse
+	45, // 53: proto.ConsentService.RevokeConsent:output_type -> proto.RevokeConsentResponse
+	33, // [33:54] is the sub-list for method output_type
+	12, // [12:33] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_proto_gallery_proto_init() }
@@ -2049,9 +2738,9 @@ func file_proto_gallery_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_gallery_proto_rawDesc), len(file_proto_gallery_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   36,
+			NumMessages:   47,
 			NumExtensions: 0,
-			NumServices:   3,
+			NumServices:   4,
 		},
 		GoTypes:           file_proto_gallery_proto_goTypes,
 		DependencyIndexes: file_proto_gallery_proto_depIdxs,

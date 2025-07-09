@@ -18,13 +18,15 @@ type GalleryGateway struct {
 	GalleryClient proto.AlbumServiceClient
 	MediaClient   proto.MediaServiceClient
 	UserClient    proto.UserServiceClient
+	ConsentClient proto.ConsentServiceClient
 }
 
-func NewGalleryGateway(albumClient proto.AlbumServiceClient, mediaClient proto.MediaServiceClient, userClient proto.UserServiceClient) *GalleryGateway {
+func NewGalleryGateway(albumClient proto.AlbumServiceClient, mediaClient proto.MediaServiceClient, userClient proto.UserServiceClient, consentClient proto.ConsentServiceClient) *GalleryGateway {
 	return &GalleryGateway{
 		GalleryClient: albumClient,
 		MediaClient:   mediaClient,
 		UserClient:    userClient,
+		ConsentClient: consentClient,
 	}
 }
 
@@ -705,6 +707,216 @@ func (g *GalleryGateway) MoveMediaHandler(w http.ResponseWriter, r *http.Request
 	res, err := g.MediaClient.MoveMediaToAlbum(ctx, &req)
 	if err != nil {
 		http.Error(w, "Failed to move media: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
+}
+
+// Consent Handlers
+
+// @Summary Ajouter un consentement
+// @Description Ajoute un nouveau consentement RGPD pour un utilisateur
+// @Tags Consentements
+// @Accept json
+// @Produce json
+// @Param consent body proto.AddConsentRequest true "Données du consentement"
+// @Success 201 {object} proto.AddConsentResponse
+// @Failure 400 {string} string "Requête invalide"
+// @Failure 401 {string} string "Non autorisé"
+// @Failure 500 {string} string "Erreur serveur"
+// @Router /consents [post]
+// @Security BearerAuth
+func (g *GalleryGateway) AddConsentHandler(w http.ResponseWriter, r *http.Request) {
+	var req proto.AddConsentRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		log.Printf("Failed to parse request: %v\n", err)
+		return
+	}
+
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Authorization header missing", http.StatusUnauthorized)
+		log.Println("Authorization header missing")
+		return
+	}
+
+	md := metadata.New(map[string]string{"authorization": authHeader})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := g.ConsentClient.AddConsent(ctx, &req)
+	if err != nil {
+		http.Error(w, "Failed to add consent: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Add consent error: %v\n", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(res)
+}
+
+// @Summary Obtenir tous les consentements d'un utilisateur
+// @Description Récupère tous les consentements d'un utilisateur
+// @Tags Consentements
+// @Produce json
+// @Success 200 {object} proto.GetUserConsentsResponse
+// @Failure 401 {string} string "Non autorisé"
+// @Failure 500 {string} string "Erreur serveur"
+// @Router /consents [get]
+// @Security BearerAuth
+func (g *GalleryGateway) GetUserConsentsHandler(w http.ResponseWriter, r *http.Request) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Authorization header missing", http.StatusUnauthorized)
+		log.Println("Authorization header missing")
+		return
+	}
+
+	req := &proto.GetUserConsentsRequest{}
+
+	md := metadata.New(map[string]string{"authorization": authHeader})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := g.ConsentClient.GetUserConsents(ctx, req)
+	if err != nil {
+		http.Error(w, "Failed to get user consents: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Get user consents error: %v\n", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
+}
+
+// @Summary Obtenir le consentement actif
+// @Description Récupère le consentement actif pour un type donné
+// @Tags Consentements
+// @Produce json
+// @Param type query string true "Type de consentement"
+// @Success 200 {object} proto.GetActiveConsentResponse
+// @Failure 400 {string} string "Type de consentement manquant"
+// @Failure 401 {string} string "Non autorisé"
+// @Failure 404 {string} string "Consentement non trouvé"
+// @Failure 500 {string} string "Erreur serveur"
+// @Router /consents/active [get]
+// @Security BearerAuth
+func (g *GalleryGateway) GetActiveConsentHandler(w http.ResponseWriter, r *http.Request) {
+	consentType := r.URL.Query().Get("type")
+	if consentType == "" {
+		http.Error(w, "Consent type is required", http.StatusBadRequest)
+		return
+	}
+
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Authorization header missing", http.StatusUnauthorized)
+		log.Println("Authorization header missing")
+		return
+	}
+
+	req := &proto.GetActiveConsentRequest{
+		ConsentType: consentType,
+	}
+
+	md := metadata.New(map[string]string{"authorization": authHeader})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := g.ConsentClient.GetActiveConsent(ctx, req)
+	if err != nil {
+		http.Error(w, "Failed to get active consent: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Get active consent error: %v\n", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
+}
+
+// @Summary Vérifier un consentement
+// @Description Vérifie si un utilisateur a un consentement valide pour un type donné
+// @Tags Consentements
+// @Produce json
+// @Param type query string true "Type de consentement"
+// @Success 200 {object} proto.CheckConsentResponse
+// @Failure 400 {string} string "Type de consentement manquant"
+// @Failure 401 {string} string "Non autorisé"
+// @Failure 500 {string} string "Erreur serveur"
+// @Router /consents/check [get]
+// @Security BearerAuth
+func (g *GalleryGateway) CheckConsentHandler(w http.ResponseWriter, r *http.Request) {
+	consentType := r.URL.Query().Get("type")
+	if consentType == "" {
+		http.Error(w, "Consent type is required", http.StatusBadRequest)
+		return
+	}
+
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Authorization header missing", http.StatusUnauthorized)
+		log.Println("Authorization header missing")
+		return
+	}
+
+	req := &proto.CheckConsentRequest{
+		ConsentType: consentType,
+	}
+
+	md := metadata.New(map[string]string{"authorization": authHeader})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := g.ConsentClient.CheckConsent(ctx, req)
+	if err != nil {
+		http.Error(w, "Failed to check consent: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Check consent error: %v\n", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
+}
+
+// @Summary Révoquer un consentement
+// @Description Révoque un consentement par son ID
+// @Tags Consentements
+// @Produce json
+// @Param id path int true "ID du consentement"
+// @Success 200 {object} proto.RevokeConsentResponse
+// @Failure 400 {string} string "ID de consentement invalide"
+// @Failure 401 {string} string "Non autorisé"
+// @Failure 500 {string} string "Erreur serveur"
+// @Router /consents/{id}/revoke [post]
+// @Security BearerAuth
+func (g *GalleryGateway) RevokeConsentHandler(w http.ResponseWriter, r *http.Request) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Authorization header missing", http.StatusUnauthorized)
+		log.Println("Authorization header missing")
+		return
+	}
+
+	vars := mux.Vars(r)
+	consentIDStr := vars["id"]
+
+	consentID, err := strconv.ParseUint(consentIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid consent ID", http.StatusBadRequest)
+		log.Printf("Invalid consent ID: %v\n", err)
+		return
+	}
+
+	req := &proto.RevokeConsentRequest{
+		ConsentId: uint32(consentID),
+	}
+
+	md := metadata.New(map[string]string{"authorization": authHeader})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := g.ConsentClient.RevokeConsent(ctx, req)
+	if err != nil {
+		http.Error(w, "Failed to revoke consent: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Revoke consent error: %v\n", err)
 		return
 	}
 

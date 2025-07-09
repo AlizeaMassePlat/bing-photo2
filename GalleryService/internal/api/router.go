@@ -29,11 +29,17 @@ func NewRouter(dbManager *db.DBManagerService, s3Service *services.S3Service, au
 	// Initialiser le gestionnaire AlbumHandler
 	albumHandler := handlers.NewAlbumHandler(albumService, userService)
 
+	// Initialiser le service ConsentService
+	consentService := services.NewConsentService(dbManager)
+
 	// Initialiser le service MediaService
-	mediaService := services.NewMediaService(dbManager, s3Service)
+	mediaService := services.NewMediaService(dbManager, s3Service, consentService)
 
 	// Initialiser le gestionnaire MediaHandler
 	mediaHandler := handlers.NewMediaHandler(mediaService, userService)
+
+	// Initialiser le gestionnaire ConsentHandler
+	consentHandler := handlers.NewConsentHandler(consentService)
 
 	// Routes pour Albums
 	router.HandleFunc("/albums", albumHandler.CreateAlbum).Methods("POST") 
@@ -51,6 +57,13 @@ func NewRouter(dbManager *db.DBManagerService, s3Service *services.S3Service, au
 	router.HandleFunc("/media/{id}", mediaHandler.DeleteMedia).Methods("DELETE")
 	router.HandleFunc("/{albumID}/media/similar", mediaHandler.DetectSimilarMedia).Methods("POST")
 	router.HandleFunc("/media/{id}/move", mediaHandler.MoveMedia).Methods("POST")
+
+	// Routes pour Consentements RGPD
+	router.HandleFunc("/consents", consentHandler.AddConsent).Methods("POST")
+	router.HandleFunc("/consents", consentHandler.GetUserConsents).Methods("GET")
+	router.HandleFunc("/consents/active", consentHandler.GetActiveConsent).Methods("GET")
+	router.HandleFunc("/consents/check", consentHandler.CheckConsent).Methods("GET")
+	router.HandleFunc("/consents/{id}/revoke", consentHandler.RevokeConsent).Methods("POST")
 
 	return router
 }

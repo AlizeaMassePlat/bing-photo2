@@ -29,6 +29,14 @@ service UserService {
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
 }
 
+service ConsentService {
+  rpc AddConsent (AddConsentRequest) returns (AddConsentResponse);
+  rpc GetUserConsents (GetUserConsentsRequest) returns (GetUserConsentsResponse);
+  rpc GetActiveConsent (GetActiveConsentRequest) returns (GetActiveConsentResponse);
+  rpc CheckConsent (CheckConsentRequest) returns (CheckConsentResponse);
+  rpc RevokeConsent (RevokeConsentRequest) returns (RevokeConsentResponse);
+}
+
 // Album messages
 message CreateAlbumRequest {
   string name = 1;
@@ -44,8 +52,16 @@ message GetAlbumsByUserRequest {
   uint32 user_id = 1;
 }
 
+message AlbumWithMedia {
+  uint32 id = 1;
+  string name = 2;
+  string description = 3;
+  uint32 user_id = 4;
+  repeated Media media = 5;
+}
+
 message GetAlbumsByUserResponse {
-  repeated Album albums = 1;
+  repeated AlbumWithMedia albums = 1;
 }
 
 message UpdateAlbumRequest {
@@ -166,17 +182,8 @@ message Media {
   bool is_private = 6;
   bool is_favorite = 7;
 }
-
 message MediaGroup {
   repeated Media media = 1;
-}
-
-message AddMediaToFavoriteRequest {
-  uint32 media_id = 1;
-}
-
-message AddMediaToFavoriteResponse {
-  string message = 1;
 }
 
 message DetectSimilarMediaRequest {
@@ -187,6 +194,14 @@ message DetectSimilarMediaResponse {
   repeated MediaGroup groups = 1;
 }
 
+message AddMediaToFavoriteRequest {
+  uint32 media_id = 1;
+}
+
+message AddMediaToFavoriteResponse {
+  string message = 1;
+}
+
 message MoveMediaRequest {
     uint32 media_id = 1;
     uint32 target_album_id = 2;
@@ -194,4 +209,65 @@ message MoveMediaRequest {
 
 message MoveMediaResponse {
     string message = 1;
+}
+
+// Consent messages
+message AddConsentRequest {
+  string consent_type = 1;
+  string consent_version = 2;
+  bool is_granted = 3;
+  string consent_text = 4;
+}
+
+message AddConsentResponse {
+  string message = 1;
+  Consent consent = 2;
+}
+
+message GetUserConsentsRequest {
+  uint32 user_id = 1;
+}
+
+message GetUserConsentsResponse {
+  repeated Consent consents = 1;
+  uint32 count = 2;
+}
+
+message GetActiveConsentRequest {
+  uint32 user_id = 1;
+  string consent_type = 2;
+}
+
+message GetActiveConsentResponse {
+  Consent consent = 1;
+}
+
+message CheckConsentRequest {
+  uint32 user_id = 1;
+  string consent_type = 2;
+}
+
+message CheckConsentResponse {
+  bool has_consent = 1;
+  string consent_type = 2;
+}
+
+message RevokeConsentRequest {
+  uint32 user_id = 1;
+  uint32 consent_id = 2;
+}
+
+message RevokeConsentResponse {
+  string message = 1;
+}
+
+message Consent {
+  uint32 id = 1;
+  string consent_type = 2;
+  string consent_version = 3;
+  bool is_granted = 4;
+  string consent_text = 5;
+  string revoked_at = 6;
+  string created_at = 7;
+  string updated_at = 8;
 }

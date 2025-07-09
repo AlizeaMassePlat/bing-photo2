@@ -817,3 +817,257 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "proto/gallery.proto",
 }
+
+const (
+	ConsentService_AddConsent_FullMethodName       = "/proto.ConsentService/AddConsent"
+	ConsentService_GetUserConsents_FullMethodName  = "/proto.ConsentService/GetUserConsents"
+	ConsentService_GetActiveConsent_FullMethodName = "/proto.ConsentService/GetActiveConsent"
+	ConsentService_CheckConsent_FullMethodName     = "/proto.ConsentService/CheckConsent"
+	ConsentService_RevokeConsent_FullMethodName    = "/proto.ConsentService/RevokeConsent"
+)
+
+// ConsentServiceClient is the client API for ConsentService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ConsentServiceClient interface {
+	AddConsent(ctx context.Context, in *AddConsentRequest, opts ...grpc.CallOption) (*AddConsentResponse, error)
+	GetUserConsents(ctx context.Context, in *GetUserConsentsRequest, opts ...grpc.CallOption) (*GetUserConsentsResponse, error)
+	GetActiveConsent(ctx context.Context, in *GetActiveConsentRequest, opts ...grpc.CallOption) (*GetActiveConsentResponse, error)
+	CheckConsent(ctx context.Context, in *CheckConsentRequest, opts ...grpc.CallOption) (*CheckConsentResponse, error)
+	RevokeConsent(ctx context.Context, in *RevokeConsentRequest, opts ...grpc.CallOption) (*RevokeConsentResponse, error)
+}
+
+type consentServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewConsentServiceClient(cc grpc.ClientConnInterface) ConsentServiceClient {
+	return &consentServiceClient{cc}
+}
+
+func (c *consentServiceClient) AddConsent(ctx context.Context, in *AddConsentRequest, opts ...grpc.CallOption) (*AddConsentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddConsentResponse)
+	err := c.cc.Invoke(ctx, ConsentService_AddConsent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) GetUserConsents(ctx context.Context, in *GetUserConsentsRequest, opts ...grpc.CallOption) (*GetUserConsentsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserConsentsResponse)
+	err := c.cc.Invoke(ctx, ConsentService_GetUserConsents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) GetActiveConsent(ctx context.Context, in *GetActiveConsentRequest, opts ...grpc.CallOption) (*GetActiveConsentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetActiveConsentResponse)
+	err := c.cc.Invoke(ctx, ConsentService_GetActiveConsent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) CheckConsent(ctx context.Context, in *CheckConsentRequest, opts ...grpc.CallOption) (*CheckConsentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckConsentResponse)
+	err := c.cc.Invoke(ctx, ConsentService_CheckConsent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) RevokeConsent(ctx context.Context, in *RevokeConsentRequest, opts ...grpc.CallOption) (*RevokeConsentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RevokeConsentResponse)
+	err := c.cc.Invoke(ctx, ConsentService_RevokeConsent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ConsentServiceServer is the server API for ConsentService service.
+// All implementations must embed UnimplementedConsentServiceServer
+// for forward compatibility.
+type ConsentServiceServer interface {
+	AddConsent(context.Context, *AddConsentRequest) (*AddConsentResponse, error)
+	GetUserConsents(context.Context, *GetUserConsentsRequest) (*GetUserConsentsResponse, error)
+	GetActiveConsent(context.Context, *GetActiveConsentRequest) (*GetActiveConsentResponse, error)
+	CheckConsent(context.Context, *CheckConsentRequest) (*CheckConsentResponse, error)
+	RevokeConsent(context.Context, *RevokeConsentRequest) (*RevokeConsentResponse, error)
+	mustEmbedUnimplementedConsentServiceServer()
+}
+
+// UnimplementedConsentServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedConsentServiceServer struct{}
+
+func (UnimplementedConsentServiceServer) AddConsent(context.Context, *AddConsentRequest) (*AddConsentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddConsent not implemented")
+}
+func (UnimplementedConsentServiceServer) GetUserConsents(context.Context, *GetUserConsentsRequest) (*GetUserConsentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserConsents not implemented")
+}
+func (UnimplementedConsentServiceServer) GetActiveConsent(context.Context, *GetActiveConsentRequest) (*GetActiveConsentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetActiveConsent not implemented")
+}
+func (UnimplementedConsentServiceServer) CheckConsent(context.Context, *CheckConsentRequest) (*CheckConsentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckConsent not implemented")
+}
+func (UnimplementedConsentServiceServer) RevokeConsent(context.Context, *RevokeConsentRequest) (*RevokeConsentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RevokeConsent not implemented")
+}
+func (UnimplementedConsentServiceServer) mustEmbedUnimplementedConsentServiceServer() {}
+func (UnimplementedConsentServiceServer) testEmbeddedByValue()                        {}
+
+// UnsafeConsentServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ConsentServiceServer will
+// result in compilation errors.
+type UnsafeConsentServiceServer interface {
+	mustEmbedUnimplementedConsentServiceServer()
+}
+
+func RegisterConsentServiceServer(s grpc.ServiceRegistrar, srv ConsentServiceServer) {
+	// If the following call pancis, it indicates UnimplementedConsentServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&ConsentService_ServiceDesc, srv)
+}
+
+func _ConsentService_AddConsent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddConsentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).AddConsent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_AddConsent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).AddConsent(ctx, req.(*AddConsentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_GetUserConsents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserConsentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).GetUserConsents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_GetUserConsents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).GetUserConsents(ctx, req.(*GetUserConsentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_GetActiveConsent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetActiveConsentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).GetActiveConsent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_GetActiveConsent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).GetActiveConsent(ctx, req.(*GetActiveConsentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_CheckConsent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckConsentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).CheckConsent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_CheckConsent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).CheckConsent(ctx, req.(*CheckConsentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_RevokeConsent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeConsentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).RevokeConsent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_RevokeConsent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).RevokeConsent(ctx, req.(*RevokeConsentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ConsentService_ServiceDesc is the grpc.ServiceDesc for ConsentService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ConsentService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.ConsentService",
+	HandlerType: (*ConsentServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddConsent",
+			Handler:    _ConsentService_AddConsent_Handler,
+		},
+		{
+			MethodName: "GetUserConsents",
+			Handler:    _ConsentService_GetUserConsents_Handler,
+		},
+		{
+			MethodName: "GetActiveConsent",
+			Handler:    _ConsentService_GetActiveConsent_Handler,
+		},
+		{
+			MethodName: "CheckConsent",
+			Handler:    _ConsentService_CheckConsent_Handler,
+		},
+		{
+			MethodName: "RevokeConsent",
+			Handler:    _ConsentService_RevokeConsent_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "proto/gallery.proto",
+}

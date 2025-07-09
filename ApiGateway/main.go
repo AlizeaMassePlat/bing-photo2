@@ -77,7 +77,8 @@ func main() {
 	albumClient := proto.NewAlbumServiceClient(galleryConn)
 	mediaClient := proto.NewMediaServiceClient(galleryConn)
 	userClient := proto.NewUserServiceClient(galleryConn)
-	galleryHandler := handlers.NewGalleryGateway(albumClient, mediaClient, userClient)
+	consentClient := proto.NewConsentServiceClient(galleryConn)
+	galleryHandler := handlers.NewGalleryGateway(albumClient, mediaClient, userClient, consentClient)
 
 	r := mux.NewRouter()
 
@@ -126,6 +127,13 @@ func main() {
 
 	// User routes
 	r.HandleFunc("/users", galleryHandler.CreateUserHandler).Methods("POST", "OPTIONS")
+
+	// Consent routes
+	r.HandleFunc("/consents", galleryHandler.AddConsentHandler).Methods("POST", "OPTIONS")
+	r.HandleFunc("/consents", galleryHandler.GetUserConsentsHandler).Methods("GET", "OPTIONS")
+	r.HandleFunc("/consents/active", galleryHandler.GetActiveConsentHandler).Methods("GET", "OPTIONS")
+	r.HandleFunc("/consents/check", galleryHandler.CheckConsentHandler).Methods("GET", "OPTIONS")
+	r.HandleFunc("/consents/{id}/revoke", galleryHandler.RevokeConsentHandler).Methods("POST", "OPTIONS")
 
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
