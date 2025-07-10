@@ -116,8 +116,8 @@ func main() {
 	// Media routes
 	r.HandleFunc("/media", galleryHandler.AddMediaHandler).Methods("POST", "OPTIONS")
 	r.HandleFunc("/media/user", galleryHandler.GetMediaByUserHandler).Methods("GET", "OPTIONS")
-	r.HandleFunc("/media/{id}/private", galleryHandler.MarkAsPrivateHandler).Methods("POST", "OPTIONS")
 	r.HandleFunc("/media/private", galleryHandler.GetPrivateMediaHandler).Methods("GET", "OPTIONS")
+	r.HandleFunc("/media/{id}/private", galleryHandler.MarkAsPrivateHandler).Methods("POST", "OPTIONS")
 	r.HandleFunc("/media/{id}/download", galleryHandler.DownloadMediaHandler).Methods("GET", "OPTIONS")
 	r.HandleFunc("/media/{id}", galleryHandler.DeleteMediaHandler).Methods("DELETE", "OPTIONS")
 	r.HandleFunc("/media/similar", galleryHandler.DetectSimilarMediaHandler).Methods("POST", "OPTIONS")

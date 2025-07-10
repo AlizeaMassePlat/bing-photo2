@@ -375,6 +375,14 @@ func (g *GalleryGateway) MarkAsPrivateHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	// Extraire le simulate depuis le json body
+	var reqBody struct {
+		Simulate bool `json:"simulate"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
 	// Contexte avec JWT
 	md := metadata.New(map[string]string{"authorization": authHeader})
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
@@ -382,6 +390,7 @@ func (g *GalleryGateway) MarkAsPrivateHandler(w http.ResponseWriter, r *http.Req
 	// Requête gRPC sans PIN
 	req := &proto.MarkAsPrivateRequest{
 		MediaId: uint32(mediaID),
+		Simulate: reqBody.Simulate,
 	}
 	res, err := g.MediaClient.MarkAsPrivate(ctx, req)
 	if err != nil {

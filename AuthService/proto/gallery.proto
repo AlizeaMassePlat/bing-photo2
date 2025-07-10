@@ -114,6 +114,7 @@ message GetMediaByUserResponse {
 
 message MarkAsPrivateRequest {
   uint32 media_id = 1;
+  bool simulate = 2;
 }
 
 message MarkAsPrivateResponse {

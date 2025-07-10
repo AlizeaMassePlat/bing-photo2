@@ -165,18 +165,19 @@ func (s *galleryServer) GetMediaByUser(ctx context.Context, req *proto.GetMediaB
 }
 
 func (s *galleryServer) MarkAsPrivate(ctx context.Context, req *proto.MarkAsPrivateRequest) (*proto.MarkAsPrivateResponse, error) {
-	// Extraire le userID depuis le contexte (via le JWT transmis dans le header Authorization)
+	// Extraire l'identifiant utilisateur depuis le contexte
 	userID, err := jwt.ExtractUserIDFromContext(ctx)
 	if err != nil {
-		log.Printf(" Impossible d'extraire le userID : %v", err)
-		return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
+		log.Printf("[MarkAsPrivate] Échec extraction userID : %v", err)
+		return nil, status.Error(codes.Unauthenticated, "Utilisateur non authentifié")
 	}
 
-	// Appeler le service
-	pinRequired, err := s.mediaService.MarkAsPrivate(uint(req.MediaId), userID)
+	// Appeler le service avec le paramètre simulate (utile pour les tests ou la vérification avant création)
+	log.Printf("[MarkAsPrivate] Appel service avec simulate=%v, media_id=%d", req.Simulate, req.MediaId)
+	pinRequired, err := s.mediaService.MarkAsPrivate(uint(req.MediaId), userID, req.Simulate)
 	if err != nil {
-		log.Printf("Error marking media as private: %v", err)
-		return nil, status.Errorf(codes.Internal, "Erreur lors du marquage comme privé: %v", err)
+		log.Printf("[MarkAsPrivate] Erreur service : %v", err)
+		return nil, status.Error(codes.Internal, "Erreur lors du marquage du média comme privé")
 	}
 
 	return &proto.MarkAsPrivateResponse{

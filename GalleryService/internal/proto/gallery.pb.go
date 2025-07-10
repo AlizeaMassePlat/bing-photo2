@@ -774,6 +774,7 @@ func (x *GetMediaByUserResponse) GetMediaList() []*Media {
 type MarkAsPrivateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MediaId       uint32                 `protobuf:"varint,1,opt,name=media_id,json=mediaId,proto3" json:"media_id,omitempty"`
+	Simulate      bool                   `protobuf:"varint,2,opt,name=simulate,proto3" json:"simulate,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -813,6 +814,13 @@ func (x *MarkAsPrivateRequest) GetMediaId() uint32 {
 		return x.MediaId
 	}
 	return 0
+}
+
+func (x *MarkAsPrivateRequest) GetSimulate() bool {
+	if x != nil {
+		return x.Simulate
+	}
+	return false
 }
 
 type MarkAsPrivateResponse struct {
@@ -2662,9 +2670,10 @@ const file_proto_gallery_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\rR\x06userId\"E\n" +
 	"\x16GetMediaByUserResponse\x12+\n" +
 	"\n" +
-	"media_list\x18\x01 \x03(\v2\f.proto.MediaR\tmediaList\"1\n" +
+	"media_list\x18\x01 \x03(\v2\f.proto.MediaR\tmediaList\"M\n" +
 	"\x14MarkAsPrivateRequest\x12\x19\n" +
-	"\bmedia_id\x18\x01 \x01(\rR\amediaId\"T\n" +
+	"\bmedia_id\x18\x01 \x01(\rR\amediaId\x12\x1a\n" +
+	"\bsimulate\x18\x02 \x01(\bR\bsimulate\"T\n" +
 	"\x15MarkAsPrivateResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\x12!\n" +
 	"\fpin_required\x18\x02 \x01(\bR\vpinRequired\"1\n" +
