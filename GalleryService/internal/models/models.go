@@ -49,38 +49,6 @@ type Media struct {
 	UpdatedAt  time.Time
 }
 
-type SimilarGroup struct {
-	ID        uint      `gorm:"primaryKey;autoIncrement"`
-	UserID    uint      `gorm:"not null"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-}
-
-type SimilarMedia struct {
-	ID             uint    `gorm:"primaryKey;autoIncrement"`
-	SimilarGroupID uint    `gorm:"not null"`
-	MediaID        uint    `gorm:"not null"`
-	SimilarityScore float64 `gorm:"not null"` 
-}
-
-
-type Access struct {
-	ID             uint      `gorm:"primaryKey;autoIncrement"`
-	MediaID        uint      `gorm:"not null"`
-	Code           string    `gorm:"unique;not null"` 
-	IsPrivate      bool      `gorm:"default:false"`   
-	Pin            string    `gorm:"-"`              
-	PinHash        string    `gorm:"default:null"`    
-	ExpirationDate time.Time `gorm:"default:null"`    
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-}
-
-type UserAccess struct {
-	ID     int    `gorm:"primaryKey;autoIncrement"`
-	Name   string
-	UserID int
-}
-
 type Consent struct {
 	ID              uint      `gorm:"primaryKey;autoIncrement"`
 	UserID          uint      `gorm:"not null"`

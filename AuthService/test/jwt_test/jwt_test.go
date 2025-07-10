@@ -14,10 +14,10 @@ func TestGenerateToken(t *testing.T) {
 	}
 
 	// Simuler un nom d'utilisateur de test
-	testUsername := "test"
+	testUserId := 1
 
 	// Exécuter la fonction
-	token, err := jwtService.GenerateToken(testUsername)
+	token, err := jwtService.GenerateToken(testUserId)
 	if err != nil {
 		t.Errorf("Erreur lors de la génération du token : %v", err)
 		return
@@ -35,10 +35,10 @@ func TestVerifyToken(t *testing.T) {
 	}
 
 	// Simuler un nom d'utilisateur de test
-	testUsername := "test"
+	testUserId := 1
 
 	// Générer un token valide pour le test
-	token, err := jwtService.GenerateToken(testUsername)
+	token, err := jwtService.GenerateToken(testUserId)
 	if err != nil {
 		t.Errorf("Erreur lors de la génération du token : %v", err)
 		return

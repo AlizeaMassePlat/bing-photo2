@@ -52,10 +52,9 @@ func (j *JWTService) VerifyToken(tokenString string) (map[string]interface{}, er
 	return claims, nil
 }
 
-func (j *JWTService) GenerateToken(userID uint, username string) (string, error) {
+func (j *JWTService) GenerateToken(userID uint) (string, error) {
 	claims := jwt.MapClaims{
 		"userID":   userID,
-		"username": username,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 		"iat":      time.Now().Unix(),
 	}

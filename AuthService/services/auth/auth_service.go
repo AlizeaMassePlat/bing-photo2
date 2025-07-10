@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -44,7 +43,7 @@ func Initialize() (*AuthService, error) {
 		log.Fatalf("Erreur lors de l'initialisation du service GoogleAuthService : %v", err)
 	}
 
-	jwtService, err := jwt.NewJWTService()
+	jwtService, err := jwt.NewJWTService(dbManager.DB)
 	if err != nil {
 		log.Fatalf("Erreur lors de l'initialisation du service JWTService : %v", err)
 	}
@@ -81,7 +80,7 @@ func (s *AuthService) LoginWithEmail(u models.User, password string) (string, er
 	}
 
 	// 3. Générer un token JWT pour l'utilisateur
-	token, err := s.JWTService.GenerateToken(uint(existingUser.ID), existingUser.Username)
+	token, err := s.JWTService.GenerateToken(uint(existingUser.ID))
 	if err != nil {
 		return "", fmt.Errorf("erreur lors de la génération du token JWT : %v", err)
 	}
@@ -192,29 +191,15 @@ func (s *AuthService) Logout(token string) error {
 		return fmt.Errorf("token invalide ou expiré 1")
 	}
 
-	// Extraire le nom d'utilisateur des claims
-	username, ok := claims["username"].(string)
-	if !ok {
-		return fmt.Errorf("erreur lors de l'extraction du nom d'utilisateur")
-	}
-
 	// Invalider le token en l'ajoutant à une liste de révocation
 	var revokedToken models.RevokedToken
-	err = revokedToken.RevokeToken(s.DBManager.DB, token, username)
+	err = revokedToken.RevokeToken(s.DBManager.DB, token)
 	if err != nil {
 		log.Printf("Erreur lors de l'invalidation du token : %v", err)
 		return fmt.Errorf("erreur lors de l'invalidation du token")
 	}
 
 	return nil
-}
-func (s *AuthService) RevokeToken(token string, username string) error {
-	revoked := models.RevokedToken{
-		Token:    token,
-		Username: username,
-		RevokedAt: time.Now(),
-	}
-	return s.DBManager.DB.Create(&revoked).Error
 }
 
 func (s *AuthService) LoginOrCreateGoogleUser(googleUser *google.GoogleUserProfile) (string, error) {
@@ -241,7 +226,7 @@ func (s *AuthService) LoginOrCreateGoogleUser(googleUser *google.GoogleUserProfi
 	}
 
 	// Générer le token JWT
-	token, err := s.JWTService.GenerateToken(uint(user.ID), user.Username)
+	token, err := s.JWTService.GenerateToken(uint(user.ID))
 	if err != nil {
 		return "", fmt.Errorf("erreur lors de la génération du token JWT : %v", err)
 	}

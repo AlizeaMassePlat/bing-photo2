@@ -9,8 +9,13 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 
 	"google.golang.org/grpc/metadata"
+
+	"AuthService/models"
+	"crypto/sha256"
+	"encoding/hex"
 )
 
 type JWTService struct {
@@ -18,9 +23,10 @@ type JWTService struct {
 	Expiration int64
 	IssuedAt   int64
 	SecretKey  []byte
+	DB         *gorm.DB
 }
 
-func NewJWTService() (*JWTService, error) {
+func NewJWTService(db *gorm.DB) (*JWTService, error) {
 	// Initialiser un nouveau service JWT
 
 	// Charger la clé secrète à partir des variables d'environnement
@@ -31,6 +37,7 @@ func NewJWTService() (*JWTService, error) {
 
 	return &JWTService{
 		SecretKey: SecretKey,
+		DB:        db,
 	}, nil
 }
 
@@ -43,6 +50,11 @@ func (j *JWTService) VerifyToken(tokenString string) (map[string]interface{}, er
 
 	if tokenString == "" {
 		return nil, errors.New("token vide ou mal formaté")
+	}
+
+	// Vérifier si le token est révoqué
+	if j.isTokenRevoked(tokenString) {
+		return nil, errors.New("token révoqué")
 	}
 
 	// Parse le token et vérifie la signature
@@ -69,14 +81,13 @@ func (j *JWTService) VerifyToken(tokenString string) (map[string]interface{}, er
 			return nil, errors.New("le token est expiré")
 		}
 	}
-
+	
 	return claims, nil
 }
 
-func (j *JWTService) GenerateToken(userID uint, username string) (string, error) {
+func (j *JWTService) GenerateToken(userID uint) (string, error) {
 	claims := jwt.MapClaims{
 		"userID":   userID,
-		"username": username,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 		"iat":      time.Now().Unix(),
 	}
@@ -123,4 +134,23 @@ func (j *JWTService) ExtractTokenFromContext(ctx context.Context) (string, error
 	}
 
 	return token, nil
+}
+
+func hashToken(token string) string {
+	sum := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(sum[:])
+}
+
+func (j *JWTService) RevokeToken(token string) error {
+	revoked := models.RevokedToken{
+		Token:     token,
+		RevokedAt: time.Now(),
+	}
+	return j.DB.Create(&revoked).Error
+}
+
+func (j *JWTService) isTokenRevoked(token string) bool {
+	var revoked models.RevokedToken
+	err := j.DB.Where("token = ?", token).First(&revoked).Error
+	return err == nil
 }

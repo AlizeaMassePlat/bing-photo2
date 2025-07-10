@@ -58,10 +58,10 @@ func (manager *DBManagerService) AutoMigrate() error {
 		&models.User{},
 		&models.Album{},
 		&models.Media{},
-		&models.Access{},
-		&models.UserAccess{},
-		&models.SimilarGroup{},
-		&models.SimilarMedia{},
+		// &models.Access{},
+		// &models.UserAccess{},
+		// &models.SimilarGroup{},
+		// &models.SimilarMedia{},
 		&models.Consent{},
 	)
 	if err != nil {

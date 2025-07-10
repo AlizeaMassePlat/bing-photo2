@@ -105,26 +105,24 @@ func (s *authServer) ResetPassword(ctx context.Context, req *proto.ResetPassword
 
 func (s *authServer) Logout(ctx context.Context, req *proto.LogoutRequest) (*proto.LogoutResponse, error) {
 	// ✅ Récupérer les claims à partir du contexte (via le middleware JWT)
-	claims, err := s.JWTService.VerifyTokenFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Token invalide : %v", err)
-	}
-
-	username, ok := claims["username"].(string)
-	if !ok {
-		return nil, status.Errorf(codes.Internal, "username introuvable dans les claims")
-	}
+	// claims, err := s.JWTService.VerifyTokenFromContext(ctx)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.Unauthenticated, "Token invalide : %v", err)
+	// }
 
 	token, err := s.JWTService.ExtractTokenFromContext(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Token introuvable dans le contexte : %v", err)
 	}
 
-	err = s.authService.RevokeToken(token, username)
+	// Utiliser directement le JWTService pour révoquer le token
+	err = s.JWTService.RevokeToken(token)
 	if err != nil {
+		log.Printf("Erreur lors de la révocation du token : %v", err)
 		return nil, status.Errorf(codes.Internal, "Erreur de déconnexion : %v", err)
 	}
 
+	log.Printf("Token révoqué avec succès : %s", token)
 	return &proto.LogoutResponse{Message: "Déconnexion réussie"}, nil
 }
 
@@ -164,14 +162,15 @@ func (s *authServer) GoogleAuthCallback(ctx context.Context, req *proto.GoogleAu
 
 func main() {
 
-	JWTService, err := jwt.NewJWTService()
-	if err != nil {
-		log.Fatalf("Failed to initialize JWTService: %v", err)
-	}
 	// Initialize AuthService (and other services as needed)
 	authService, err := auth.Initialize()
 	if err != nil {
 		log.Fatalf("Failed to initialize AuthService: %v", err)
+	}
+
+	JWTService, err := jwt.NewJWTService(authService.DBManager.DB)
+	if err != nil {
+		log.Fatalf("Failed to initialize JWTService: %v", err)
 	}
 
 	// Définir les méthodes nécessitant une vérification d'authentification
