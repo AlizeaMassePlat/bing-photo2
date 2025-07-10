@@ -108,7 +108,7 @@ func (s *UserService) VerifyPrivateAlbumPin(userID uint, pin string) error {
 		return fmt.Errorf("utilisateur introuvable : %v", err)
 	}
 
-	if !compareHashAndPin(user.PrivateAlbumPin, pin) {
+	if !compareHashAndPin(user.Pin, pin) {
 		return fmt.Errorf("PIN incorrect")
 	}
 	return nil
@@ -120,7 +120,7 @@ func (s *UserService) SetPrivateAlbumPin(userID uint, pin string) error {
 	}
 
 	// Hacher le PIN
-	hashedPin, err := hashPin(pin)
+	hashedPin, err := HashPin(pin)
 	if err != nil {
 		return fmt.Errorf("échec du hachage du PIN : %v", err)
 	}
@@ -133,7 +133,7 @@ func (s *UserService) SetPrivateAlbumPin(userID uint, pin string) error {
 	}
 
 	// Mettre à jour le PIN de l'utilisateur
-	user.PrivateAlbumPin = hashedPin
+	user.Pin = hashedPin
 	if err := s.DBManager.DB.Save(&user).Error; err != nil {
 		return fmt.Errorf("échec de la mise à jour du PIN : %v", err)
 	}
@@ -142,7 +142,7 @@ func (s *UserService) SetPrivateAlbumPin(userID uint, pin string) error {
 }
 
 // hashPin génère un hash pour un PIN donné
-func hashPin(pin string) (string, error) {
+func HashPin(pin string) (string, error) {
 	hashedPin, err := bcrypt.GenerateFromPassword([]byte(pin), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -154,4 +154,13 @@ func hashPin(pin string) (string, error) {
 func compareHashAndPin(hashedPin, plainPin string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPin), []byte(plainPin))
 	return err == nil
+}
+
+func (s *UserService) UpdatePin(userID uint, hashedPin string) error {
+	var user models.User
+	if err := s.DBManager.DB.First(&user, userID).Error; err != nil {
+		return fmt.Errorf("Utilisateur introuvable : %v", err)
+	}
+	user.Pin = hashedPin
+	return s.DBManager.DB.Save(&user).Error
 }

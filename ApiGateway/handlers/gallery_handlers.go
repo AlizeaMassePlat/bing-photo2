@@ -366,19 +366,24 @@ func (g *GalleryGateway) MarkAsPrivateHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// Injecter le token dans un contexte gRPC
-	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", authHeader)
-
-	// Lire et parser le corps de la requête
-	var req proto.MarkAsPrivateRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		log.Printf("Failed to parse request: %v\n", err)
+	// Extraire l'ID depuis l'URL
+	vars := mux.Vars(r)
+	mediaIDStr := vars["id"]
+	mediaID, err := strconv.ParseUint(mediaIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid media ID", http.StatusBadRequest)
 		return
 	}
 
-	// Appeler le service gRPC avec le contexte enrichi
-	res, err := g.MediaClient.MarkAsPrivate(ctx, &req)
+	// Contexte avec JWT
+	md := metadata.New(map[string]string{"authorization": authHeader})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	// Requête gRPC sans PIN
+	req := &proto.MarkAsPrivateRequest{
+		MediaId: uint32(mediaID),
+	}
+	res, err := g.MediaClient.MarkAsPrivate(ctx, req)
 	if err != nil {
 		http.Error(w, "Failed to mark as private: "+err.Error(), http.StatusInternalServerError)
 		log.Printf("Mark as private error: %v\n", err)
@@ -401,18 +406,21 @@ func (g *GalleryGateway) MarkAsPrivateHandler(w http.ResponseWriter, r *http.Req
 // @Router /media/private [get]
 // @Security BearerAuth
 func (g *GalleryGateway) GetPrivateMediaHandler(w http.ResponseWriter, r *http.Request) {
-	userID, err := strconv.ParseUint(r.URL.Query().Get("user_id"), 10, 32)
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+	// Extraire l'Authorization
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Authorization header missing", http.StatusUnauthorized)
+		log.Println("Authorization header missing")
 		return
 	}
 
-	req := &proto.GetPrivateMediaRequest{
-		UserId: uint32(userID),
-		Pin:    r.URL.Query().Get("pin"),
-	}
+	// Contexte avec JWT
+	md := metadata.New(map[string]string{"authorization": authHeader})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
-	res, err := g.MediaClient.GetPrivateMedia(context.Background(), req)
+	// Requête gRPC sans paramètres (l'userID est extrait du JWT)
+	req := &proto.GetPrivateMediaRequest{}
+	res, err := g.MediaClient.GetPrivateMedia(ctx, req)
 	if err != nil {
 		http.Error(w, "Failed to get private media: "+err.Error(), http.StatusInternalServerError)
 		log.Printf("Get private media error: %v\n", err)
@@ -917,6 +925,44 @@ func (g *GalleryGateway) RevokeConsentHandler(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		http.Error(w, "Failed to revoke consent: "+err.Error(), http.StatusInternalServerError)
 		log.Printf("Revoke consent error: %v\n", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
+}
+
+// @Summary Définir ou modifier le PIN utilisateur
+// @Description Permet à l'utilisateur de définir ou modifier son code PIN
+// @Tags Utilisateur
+// @Accept json
+// @Produce json
+// @Param pin body proto.SetUserPinRequest true "Nouveau PIN"
+// @Success 200 {object} proto.SetUserPinResponse
+// @Failure 400 {string} string "Requête invalide"
+// @Failure 401 {string} string "Non autorisé"
+// @Failure 500 {string} string "Erreur serveur"
+// @Router /users/pin [post]
+// @Security BearerAuth
+func (g *GalleryGateway) SetUserPinHandler(w http.ResponseWriter, r *http.Request) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Authorization header missing", http.StatusUnauthorized)
+		return
+	}
+
+	var req proto.SetUserPinRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	md := metadata.New(map[string]string{"authorization": authHeader})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := g.UserClient.SetUserPin(ctx, &req)
+	if err != nil {
+		http.Error(w, "Failed to set PIN: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 

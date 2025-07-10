@@ -27,6 +27,7 @@ service MediaService {
 
 service UserService {
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc SetUserPin (SetUserPinRequest) returns (SetUserPinResponse);
 }
 
 service ConsentService {
@@ -112,16 +113,15 @@ message GetMediaByUserResponse {
 
 message MarkAsPrivateRequest {
   uint32 media_id = 1;
-  string pin = 2;
 }
 
 message MarkAsPrivateResponse {
   string message = 1;
+  bool pin_required = 2;
 }
 
 message GetPrivateMediaRequest {
   uint32 user_id = 1;
-  string pin = 2;
 }
 
 message GetPrivateMediaResponse {
@@ -270,4 +270,13 @@ message Consent {
   string revoked_at = 6;
   string created_at = 7;
   string updated_at = 8;
+}
+
+message SetUserPinRequest {
+  uint32 user_id = 1;     
+  string pin = 2;
+}
+
+message SetUserPinResponse {
+  string message = 1;
 }

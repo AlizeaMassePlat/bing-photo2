@@ -774,7 +774,6 @@ func (x *GetMediaByUserResponse) GetMediaList() []*Media {
 type MarkAsPrivateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MediaId       uint32                 `protobuf:"varint,1,opt,name=media_id,json=mediaId,proto3" json:"media_id,omitempty"`
-	Pin           string                 `protobuf:"bytes,2,opt,name=pin,proto3" json:"pin,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -816,16 +815,10 @@ func (x *MarkAsPrivateRequest) GetMediaId() uint32 {
 	return 0
 }
 
-func (x *MarkAsPrivateRequest) GetPin() string {
-	if x != nil {
-		return x.Pin
-	}
-	return ""
-}
-
 type MarkAsPrivateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	PinRequired   bool                   `protobuf:"varint,2,opt,name=pin_required,json=pinRequired,proto3" json:"pin_required,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -867,10 +860,16 @@ func (x *MarkAsPrivateResponse) GetMessage() string {
 	return ""
 }
 
+func (x *MarkAsPrivateResponse) GetPinRequired() bool {
+	if x != nil {
+		return x.PinRequired
+	}
+	return false
+}
+
 type GetPrivateMediaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Pin           string                 `protobuf:"bytes,2,opt,name=pin,proto3" json:"pin,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -910,13 +909,6 @@ func (x *GetPrivateMediaRequest) GetUserId() uint32 {
 		return x.UserId
 	}
 	return 0
-}
-
-func (x *GetPrivateMediaRequest) GetPin() string {
-	if x != nil {
-		return x.Pin
-	}
-	return ""
 }
 
 type GetPrivateMediaResponse struct {
@@ -2424,6 +2416,102 @@ func (x *Consent) GetUpdatedAt() string {
 	return ""
 }
 
+type SetUserPinRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Pin           string                 `protobuf:"bytes,2,opt,name=pin,proto3" json:"pin,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetUserPinRequest) Reset() {
+	*x = SetUserPinRequest{}
+	mi := &file_proto_gallery_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetUserPinRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetUserPinRequest) ProtoMessage() {}
+
+func (x *SetUserPinRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetUserPinRequest.ProtoReflect.Descriptor instead.
+func (*SetUserPinRequest) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *SetUserPinRequest) GetUserId() uint32 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *SetUserPinRequest) GetPin() string {
+	if x != nil {
+		return x.Pin
+	}
+	return ""
+}
+
+type SetUserPinResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetUserPinResponse) Reset() {
+	*x = SetUserPinResponse{}
+	mi := &file_proto_gallery_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetUserPinResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetUserPinResponse) ProtoMessage() {}
+
+func (x *SetUserPinResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_gallery_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetUserPinResponse.ProtoReflect.Descriptor instead.
+func (*SetUserPinResponse) Descriptor() ([]byte, []int) {
+	return file_proto_gallery_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *SetUserPinResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_proto_gallery_proto protoreflect.FileDescriptor
 
 const file_proto_gallery_proto_rawDesc = "" +
@@ -2470,15 +2558,14 @@ const file_proto_gallery_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\rR\x06userId\"E\n" +
 	"\x16GetMediaByUserResponse\x12+\n" +
 	"\n" +
-	"media_list\x18\x01 \x03(\v2\f.proto.MediaR\tmediaList\"C\n" +
+	"media_list\x18\x01 \x03(\v2\f.proto.MediaR\tmediaList\"1\n" +
 	"\x14MarkAsPrivateRequest\x12\x19\n" +
-	"\bmedia_id\x18\x01 \x01(\rR\amediaId\x12\x10\n" +
-	"\x03pin\x18\x02 \x01(\tR\x03pin\"1\n" +
+	"\bmedia_id\x18\x01 \x01(\rR\amediaId\"T\n" +
 	"\x15MarkAsPrivateResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"C\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12!\n" +
+	"\fpin_required\x18\x02 \x01(\bR\vpinRequired\"1\n" +
 	"\x16GetPrivateMediaRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\rR\x06userId\x12\x10\n" +
-	"\x03pin\x18\x02 \x01(\tR\x03pin\"=\n" +
+	"\auser_id\x18\x01 \x01(\rR\x06userId\"=\n" +
 	"\x17GetPrivateMediaResponse\x12\"\n" +
 	"\x05media\x18\x01 \x03(\v2\f.proto.MediaR\x05media\"1\n" +
 	"\x14DownloadMediaRequest\x12\x19\n" +
@@ -2574,7 +2661,12 @@ const file_proto_gallery_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\tR\tupdatedAt2\x84\x03\n" +
+	"updated_at\x18\b \x01(\tR\tupdatedAt\">\n" +
+	"\x11SetUserPinRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\rR\x06userId\x12\x10\n" +
+	"\x03pin\x18\x02 \x01(\tR\x03pin\".\n" +
+	"\x12SetUserPinResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2\x84\x03\n" +
 	"\fAlbumService\x12D\n" +
 	"\vCreateAlbum\x12\x19.proto.CreateAlbumRequest\x1a\x1a.proto.CreateAlbumResponse\x12P\n" +
 	"\x0fGetAlbumsByUser\x12\x1d.proto.GetAlbumsByUserRequest\x1a\x1e.proto.GetAlbumsByUserResponse\x12D\n" +
@@ -2591,10 +2683,12 @@ const file_proto_gallery_proto_rawDesc = "" +
 	"\x12DetectSimilarMedia\x12 .proto.DetectSimilarMediaRequest\x1a!.proto.DetectSimilarMediaResponse\x12Y\n" +
 	"\x12AddMediaToFavorite\x12 .proto.AddMediaToFavoriteRequest\x1a!.proto.AddMediaToFavoriteResponse\x12P\n" +
 	"\x0fGetMediaByAlbum\x12\x1d.proto.GetMediaByAlbumRequest\x1a\x1e.proto.GetMediaByAlbumResponse\x12E\n" +
-	"\x10MoveMediaToAlbum\x12\x17.proto.MoveMediaRequest\x1a\x18.proto.MoveMediaResponse2P\n" +
+	"\x10MoveMediaToAlbum\x12\x17.proto.MoveMediaRequest\x1a\x18.proto.MoveMediaResponse2\x93\x01\n" +
 	"\vUserService\x12A\n" +
 	"\n" +
-	"CreateUser\x12\x18.proto.CreateUserRequest\x1a\x19.proto.CreateUserResponse2\x8f\x03\n" +
+	"CreateUser\x12\x18.proto.CreateUserRequest\x1a\x19.proto.CreateUserResponse\x12A\n" +
+	"\n" +
+	"SetUserPin\x12\x18.proto.SetUserPinRequest\x1a\x19.proto.SetUserPinResponse2\x8f\x03\n" +
 	"\x0eConsentService\x12A\n" +
 	"\n" +
 	"AddConsent\x12\x18.proto.AddConsentRequest\x1a\x19.proto.AddConsentResponse\x12P\n" +
@@ -2615,7 +2709,7 @@ func file_proto_gallery_proto_rawDescGZIP() []byte {
 	return file_proto_gallery_proto_rawDescData
 }
 
-var file_proto_gallery_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
+var file_proto_gallery_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
 var file_proto_gallery_proto_goTypes = []any{
 	(*CreateAlbumRequest)(nil),         // 0: proto.CreateAlbumRequest
 	(*CreateAlbumResponse)(nil),        // 1: proto.CreateAlbumResponse
@@ -2664,6 +2758,8 @@ var file_proto_gallery_proto_goTypes = []any{
 	(*RevokeConsentRequest)(nil),       // 44: proto.RevokeConsentRequest
 	(*RevokeConsentResponse)(nil),      // 45: proto.RevokeConsentResponse
 	(*Consent)(nil),                    // 46: proto.Consent
+	(*SetUserPinRequest)(nil),          // 47: proto.SetUserPinRequest
+	(*SetUserPinResponse)(nil),         // 48: proto.SetUserPinResponse
 }
 var file_proto_gallery_proto_depIdxs = []int32{
 	28, // 0: proto.AlbumWithMedia.media:type_name -> proto.Media
@@ -2694,34 +2790,36 @@ var file_proto_gallery_proto_depIdxs = []int32{
 	25, // 25: proto.MediaService.GetMediaByAlbum:input_type -> proto.GetMediaByAlbumRequest
 	34, // 26: proto.MediaService.MoveMediaToAlbum:input_type -> proto.MoveMediaRequest
 	23, // 27: proto.UserService.CreateUser:input_type -> proto.CreateUserRequest
-	36, // 28: proto.ConsentService.AddConsent:input_type -> proto.AddConsentRequest
-	38, // 29: proto.ConsentService.GetUserConsents:input_type -> proto.GetUserConsentsRequest
-	40, // 30: proto.ConsentService.GetActiveConsent:input_type -> proto.GetActiveConsentRequest
-	42, // 31: proto.ConsentService.CheckConsent:input_type -> proto.CheckConsentRequest
-	44, // 32: proto.ConsentService.RevokeConsent:input_type -> proto.RevokeConsentRequest
-	1,  // 33: proto.AlbumService.CreateAlbum:output_type -> proto.CreateAlbumResponse
-	4,  // 34: proto.AlbumService.GetAlbumsByUser:output_type -> proto.GetAlbumsByUserResponse
-	6,  // 35: proto.AlbumService.UpdateAlbum:output_type -> proto.UpdateAlbumResponse
-	8,  // 36: proto.AlbumService.DeleteAlbum:output_type -> proto.DeleteAlbumResponse
-	10, // 37: proto.AlbumService.GetPrivateAlbum:output_type -> proto.GetPrivateAlbumResponse
-	12, // 38: proto.MediaService.AddMedia:output_type -> proto.AddMediaResponse
-	14, // 39: proto.MediaService.GetMediaByUser:output_type -> proto.GetMediaByUserResponse
-	16, // 40: proto.MediaService.MarkAsPrivate:output_type -> proto.MarkAsPrivateResponse
-	18, // 41: proto.MediaService.GetPrivateMedia:output_type -> proto.GetPrivateMediaResponse
-	20, // 42: proto.MediaService.DownloadMedia:output_type -> proto.DownloadMediaResponse
-	22, // 43: proto.MediaService.DeleteMedia:output_type -> proto.DeleteMediaResponse
-	31, // 44: proto.MediaService.DetectSimilarMedia:output_type -> proto.DetectSimilarMediaResponse
-	33, // 45: proto.MediaService.AddMediaToFavorite:output_type -> proto.AddMediaToFavoriteResponse
-	26, // 46: proto.MediaService.GetMediaByAlbum:output_type -> proto.GetMediaByAlbumResponse
-	35, // 47: proto.MediaService.MoveMediaToAlbum:output_type -> proto.MoveMediaResponse
-	24, // 48: proto.UserService.CreateUser:output_type -> proto.CreateUserResponse
-	37, // 49: proto.ConsentService.AddConsent:output_type -> proto.AddConsentResponse
-	39, // 50: proto.ConsentService.GetUserConsents:output_type -> proto.GetUserConsentsResponse
-	41, // 51: proto.ConsentService.GetActiveConsent:output_type -> proto.GetActiveConsentResponse
-	43, // 52: proto.ConsentService.CheckConsent:output_type -> proto.CheckConsentResponse
-	45, // 53: proto.ConsentService.RevokeConsent:output_type -> proto.RevokeConsentResponse
-	33, // [33:54] is the sub-list for method output_type
-	12, // [12:33] is the sub-list for method input_type
+	47, // 28: proto.UserService.SetUserPin:input_type -> proto.SetUserPinRequest
+	36, // 29: proto.ConsentService.AddConsent:input_type -> proto.AddConsentRequest
+	38, // 30: proto.ConsentService.GetUserConsents:input_type -> proto.GetUserConsentsRequest
+	40, // 31: proto.ConsentService.GetActiveConsent:input_type -> proto.GetActiveConsentRequest
+	42, // 32: proto.ConsentService.CheckConsent:input_type -> proto.CheckConsentRequest
+	44, // 33: proto.ConsentService.RevokeConsent:input_type -> proto.RevokeConsentRequest
+	1,  // 34: proto.AlbumService.CreateAlbum:output_type -> proto.CreateAlbumResponse
+	4,  // 35: proto.AlbumService.GetAlbumsByUser:output_type -> proto.GetAlbumsByUserResponse
+	6,  // 36: proto.AlbumService.UpdateAlbum:output_type -> proto.UpdateAlbumResponse
+	8,  // 37: proto.AlbumService.DeleteAlbum:output_type -> proto.DeleteAlbumResponse
+	10, // 38: proto.AlbumService.GetPrivateAlbum:output_type -> proto.GetPrivateAlbumResponse
+	12, // 39: proto.MediaService.AddMedia:output_type -> proto.AddMediaResponse
+	14, // 40: proto.MediaService.GetMediaByUser:output_type -> proto.GetMediaByUserResponse
+	16, // 41: proto.MediaService.MarkAsPrivate:output_type -> proto.MarkAsPrivateResponse
+	18, // 42: proto.MediaService.GetPrivateMedia:output_type -> proto.GetPrivateMediaResponse
+	20, // 43: proto.MediaService.DownloadMedia:output_type -> proto.DownloadMediaResponse
+	22, // 44: proto.MediaService.DeleteMedia:output_type -> proto.DeleteMediaResponse
+	31, // 45: proto.MediaService.DetectSimilarMedia:output_type -> proto.DetectSimilarMediaResponse
+	33, // 46: proto.MediaService.AddMediaToFavorite:output_type -> proto.AddMediaToFavoriteResponse
+	26, // 47: proto.MediaService.GetMediaByAlbum:output_type -> proto.GetMediaByAlbumResponse
+	35, // 48: proto.MediaService.MoveMediaToAlbum:output_type -> proto.MoveMediaResponse
+	24, // 49: proto.UserService.CreateUser:output_type -> proto.CreateUserResponse
+	48, // 50: proto.UserService.SetUserPin:output_type -> proto.SetUserPinResponse
+	37, // 51: proto.ConsentService.AddConsent:output_type -> proto.AddConsentResponse
+	39, // 52: proto.ConsentService.GetUserConsents:output_type -> proto.GetUserConsentsResponse
+	41, // 53: proto.ConsentService.GetActiveConsent:output_type -> proto.GetActiveConsentResponse
+	43, // 54: proto.ConsentService.CheckConsent:output_type -> proto.CheckConsentResponse
+	45, // 55: proto.ConsentService.RevokeConsent:output_type -> proto.RevokeConsentResponse
+	34, // [34:56] is the sub-list for method output_type
+	12, // [12:34] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
 	12, // [12:12] is the sub-list for extension extendee
 	0,  // [0:12] is the sub-list for field type_name
@@ -2738,7 +2836,7 @@ func file_proto_gallery_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_gallery_proto_rawDesc), len(file_proto_gallery_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   47,
+			NumMessages:   49,
 			NumExtensions: 0,
 			NumServices:   4,
 		},

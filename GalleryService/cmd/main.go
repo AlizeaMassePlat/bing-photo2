@@ -18,6 +18,7 @@ import (
 	"GalleryService/internal/models"
 	proto "GalleryService/internal/proto"
 	"GalleryService/internal/services"
+	"GalleryService/internal/utils"
 
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -171,42 +172,50 @@ func (s *galleryServer) MarkAsPrivate(ctx context.Context, req *proto.MarkAsPriv
 		return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
 	}
 
-	// Appeler le service métier avec l'ID utilisateur correct
-	if err := s.mediaService.MarkAsPrivate(uint(req.MediaId), userID); err != nil {
-		log.Printf(" Erreur lors du passage en privé : %v", err)
-		return nil, status.Errorf(codes.Unknown, "Erreur lors du passage en privé : %v", err)
-	}
-
-	log.Printf("Média %d marqué comme privé par userID=%d", req.MediaId, userID)
-	return &proto.MarkAsPrivateResponse{}, nil
-}
-
-func (s *galleryServer) GetPrivateMedia(ctx context.Context, req *proto.GetPrivateMediaRequest) (*proto.GetPrivateMediaResponse, error) {
-
-	err := s.userService.VerifyPrivateAlbumPin(uint(req.UserId), req.Pin)
+	// Appeler le service
+	pinRequired, err := s.mediaService.MarkAsPrivate(uint(req.MediaId), userID)
 	if err != nil {
-		log.Printf("Error verifying private album pin: %v", err)
-		return nil, err
+		log.Printf("Error marking media as private: %v", err)
+		return nil, status.Errorf(codes.Internal, "Erreur lors du marquage comme privé: %v", err)
 	}
 
-	media, err := s.mediaService.GetPrivateMedia(uint(req.UserId))
+	return &proto.MarkAsPrivateResponse{
+		Message:     "Média marqué comme privé avec succès",
+		PinRequired: pinRequired,
+	}, nil
+}
+func (s *galleryServer) GetPrivateMedia(ctx context.Context, req *proto.GetPrivateMediaRequest) (*proto.GetPrivateMediaResponse, error) {
+	// Extraire le userID depuis le contexte JWT
+	userID, err := jwt.ExtractUserIDFromContext(ctx)
+	if err != nil {
+		log.Printf("Impossible d'extraire le userID : %v", err)
+		return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
+	}
+
+	// Récupérer les médias privés de l'utilisateur
+	medias, err := s.mediaService.GetPrivateMedia(userID)
 	if err != nil {
 		log.Printf("Error getting private media: %v", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Erreur lors de la récupération des médias privés: %v", err)
 	}
 
-	var protoMedia []*proto.Media
-	for _, m := range media {
-		protoMedia = append(protoMedia, &proto.Media{
-			Id:       uint32(m.ID),
-			Name:     m.Name,
-			AlbumId:  uint32(m.AlbumID),
-			FileSize: uint32(m.FileSize),
-		})
+	// Convertir en proto
+	var protoMedias []*proto.Media
+	for _, media := range medias {
+		protoMedia := &proto.Media{
+			Id:        uint32(media.ID),
+			Name:      media.Name,
+			AlbumId:   uint32(media.AlbumID),
+			FileSize:  uint32(media.FileSize),
+			Path:      media.Path,
+			IsPrivate: media.IsPrivate,
+			IsFavorite: media.IsFavorite,
+		}
+		protoMedias = append(protoMedias, protoMedia)
 	}
 
 	return &proto.GetPrivateMediaResponse{
-		Media: protoMedia,
+		Media: protoMedias,
 	}, nil
 }
 
@@ -490,6 +499,34 @@ func (s *galleryServer) RevokeConsent(ctx context.Context, req *proto.RevokeCons
 	}, nil
 }
 
+func (s *galleryServer) SetUserPin(ctx context.Context, req *proto.SetUserPinRequest) (*proto.SetUserPinResponse, error) {
+	userID := req.UserId
+	if userID == 0 {
+		var id uint
+		var err error
+		id, err = jwt.ExtractUserIDFromContext(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
+		}
+		userID = uint32(id)
+	}
+
+	if len(req.Pin) < 4 {
+		return nil, status.Errorf(codes.InvalidArgument, "Le PIN doit contenir au moins 4 chiffres")
+	}
+
+	// Utilise utils.HashPin
+	hashedPin := utils.HashPin(req.Pin)
+
+	err := s.userService.UpdatePin(uint(userID), hashedPin)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Erreur lors de la mise à jour du PIN : %v", err)
+	}
+
+	return &proto.SetUserPinResponse{
+		Message: "PIN mis à jour avec succès",
+	}, nil
+}
 
 func main() {
 	// Load environment variables
@@ -545,6 +582,7 @@ func main() {
 		"/proto.ConsentService/GetActiveConsent": true,
 		"/proto.ConsentService/CheckConsent":  true,
 		"/proto.ConsentService/RevokeConsent": true,
+		"/proto.UserService/SetUserPin":        true,
 	}
 
 	// Créer le serveur gRPC avec intercepteur JWT

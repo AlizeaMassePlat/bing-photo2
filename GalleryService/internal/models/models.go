@@ -5,10 +5,10 @@ import (
 )
 
 type User struct {
-	ID               uint      `gorm:"primaryKey"`
+	ID               uint      `gorm:"primaryKey;autoIncrement"`
 	Email            string    `gorm:"unique;not null"`
 	Username         string    `gorm:"not null"`
-	PrivateAlbumPin  string    `gorm:"default:null"` 
+	Pin  string    `gorm:"default:null"` 
 	PrivateAlbumID   uint      `gorm:"default:null"`
 	PrivateAlbum     *Album     `gorm:"foreignKey:PrivateAlbumID"`
 	MainAlbumID   	 uint      `gorm:"default:null"`
@@ -19,7 +19,7 @@ type User struct {
 }
 
 type Album struct {
-	ID          uint      `gorm:"primaryKey"`
+	ID          uint      `gorm:"primaryKey;autoIncrement"`
 	Name        string    `gorm:"unique;not null"`
 	UserID      uint      `gorm:"not null"`
 	BucketName  string    `gorm:"not null"`
@@ -35,13 +35,14 @@ type Album struct {
 }
 
 type Media struct {
-	ID         uint   `gorm:"primaryKey"`
+	ID         uint   `gorm:"primaryKey;autoIncrement"`
 	AlbumID    uint   `gorm:"not null"`
 	Album      *Album  `gorm:"foreignKey:AlbumID"`
 	Path       string `gorm:"not null"`
 	Name       string `gorm:"not null"`
 	Type       string
 	IsFavorite bool   `gorm:"default:false"`
+	IsPrivate  bool   `gorm:"default:false"`
 	Hash 	   *string `gorm:"column:hash;not null"`
 	FileSize   uint   `gorm:"not null"`
 	CreatedAt  time.Time
@@ -49,13 +50,13 @@ type Media struct {
 }
 
 type SimilarGroup struct {
-	ID        uint      `gorm:"primaryKey"`
+	ID        uint      `gorm:"primaryKey;autoIncrement"`
 	UserID    uint      `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 }
 
 type SimilarMedia struct {
-	ID             uint    `gorm:"primaryKey"`
+	ID             uint    `gorm:"primaryKey;autoIncrement"`
 	SimilarGroupID uint    `gorm:"not null"`
 	MediaID        uint    `gorm:"not null"`
 	SimilarityScore float64 `gorm:"not null"` 
@@ -63,7 +64,7 @@ type SimilarMedia struct {
 
 
 type Access struct {
-	ID             uint      `gorm:"primaryKey"`
+	ID             uint      `gorm:"primaryKey;autoIncrement"`
 	MediaID        uint      `gorm:"not null"`
 	Code           string    `gorm:"unique;not null"` 
 	IsPrivate      bool      `gorm:"default:false"`   
@@ -75,13 +76,13 @@ type Access struct {
 }
 
 type UserAccess struct {
-	ID     int    `gorm:"primaryKey"`
+	ID     int    `gorm:"primaryKey;autoIncrement"`
 	Name   string
 	UserID int
 }
 
 type Consent struct {
-	ID              uint      `gorm:"primaryKey"`
+	ID              uint      `gorm:"primaryKey;autoIncrement"`
 	UserID          uint      `gorm:"not null"`
 	User            *User     `gorm:"foreignKey:UserID"`
 	ConsentType     string    `gorm:"not null"` // "image_similarity_detection", "data_processing", etc.

@@ -124,30 +124,34 @@ func (s *MediaService) GetMediaByUser(userID uint) ([]models.Media, error) {
 }
 
 func (s *MediaService) GetPrivateMedia(userID uint) ([]models.Media, error) {
-    var mediaList []models.Media
+	var mediaList []models.Media
 
-    // Charger les médias associés aux albums de l'utilisateur
-    err := s.DBManager.DB.
-        Preload("Album"). // Charger les détails des albums associés
-        Joins("JOIN albums ON albums.id = media.album_id").
-        Where("albums.user_id = ?", userID).
-		Where("media.is_private = ?", "true").
-        Find(&mediaList).Error
+	// Récupérer l'utilisateur pour obtenir son album privé
+	var user models.User
+	if err := s.DBManager.DB.First(&user, userID).Error; err != nil {
+		return nil, fmt.Errorf("utilisateur introuvable pour userID : %d", userID)
+	}
 
-    if err != nil {
-        return nil, fmt.Errorf("échec de la récupération des médias pour l'utilisateur %d : %v", userID, err)
-    }
+	// Récupérer tous les médias de l'album privé de l'utilisateur
+	err := s.DBManager.DB.
+		Preload("Album").
+		Where("album_id = ?", user.PrivateAlbumID).
+		Find(&mediaList).Error
 
-    // Récupérer les buckets existants depuis l'API S3-like
-    bucketExists := make(map[string]bool)
-    s3Buckets, err := s.S3Service.ListBuckets()
-    if err != nil {
-        return nil, fmt.Errorf("échec de la récupération des buckets depuis S3 : %v", err)
-    }
+	if err != nil {
+		return nil, fmt.Errorf("échec de la récupération des médias privés pour l'utilisateur %d : %v", userID, err)
+	}
 
-    for _, bucket := range s3Buckets {
-        bucketExists[bucket.Name] = true
-    }
+	// Vérification de l'existence des buckets
+	s3Buckets, err := s.S3Service.ListBuckets()
+	if err != nil {
+		return nil, fmt.Errorf("échec de la récupération des buckets depuis l'API S3-like : %v", err)
+	}
+
+	bucketExists := make(map[string]bool)
+	for _, bucket := range s3Buckets {
+		bucketExists[strings.TrimSpace(bucket.Name)] = true
+	}
 
     // Vérifier si les albums des médias existent dans S3
 	for i := range mediaList {
@@ -157,55 +161,63 @@ func (s *MediaService) GetPrivateMedia(userID uint) ([]models.Media, error) {
 		}
 	}
 
-    return mediaList, nil
+	log.Printf("Récupération de %d médias privés pour l'utilisateur %d", len(mediaList), userID)
+	return mediaList, nil
 }
+func (s *MediaService) MarkAsPrivate(mediaID uint, userID uint) (bool, error) {
+	log.Printf("Marquage du média %d comme privé pour l'utilisateur %d", mediaID, userID)
 
-func (s *MediaService) MarkAsPrivate(mediaID uint, userID uint) error {
-    // Récupérer le média à partir de son ID
-    var media models.Media
-    if err := s.DBManager.DB.First(&media, mediaID).Error; err != nil {
-        return fmt.Errorf("média introuvable pour mediaID : %d", mediaID)
-    }
+	// Récupérer le média à partir de son ID
+	var media models.Media
+	if err := s.DBManager.DB.First(&media, mediaID).Error; err != nil {
+		return false, fmt.Errorf("média introuvable pour mediaID : %d", mediaID)
+	}
 
-    // Vérifier si l'utilisateur est propriétaire du média
-    var album models.Album
-    if err := s.DBManager.DB.First(&album, media.AlbumID).Error; err != nil {
-        return fmt.Errorf("album introuvable pour albumID : %d", media.AlbumID)
-    }
-    if album.UserID != userID {
-        return fmt.Errorf("l'utilisateur %d n'est pas propriétaire de ce média", userID)
-    }
+	// Vérifier si l'utilisateur est propriétaire du média
+	var album models.Album
+	if err := s.DBManager.DB.First(&album, media.AlbumID).Error; err != nil {
+		return false, fmt.Errorf("album introuvable pour albumID : %d", media.AlbumID)
+	}
+	if album.UserID != userID {
+		return false, fmt.Errorf("l'utilisateur %d n'est pas propriétaire de ce média", userID)
+	}
 
-    // Récupérer l'album privé de l'utilisateur
-    var user models.User
-    if err := s.DBManager.DB.First(&user, userID).Error; err != nil {
-        return fmt.Errorf("utilisateur introuvable pour userID : %d", userID)
-    }
-    var privateAlbum models.Album
-    if err := s.DBManager.DB.First(&privateAlbum, user.PrivateAlbumID).Error; err != nil {
-        return fmt.Errorf("album privé introuvable pour userID : %d", userID)
-    }
+	// Récupérer l'utilisateur pour vérifier le PIN
+	var user models.User
+	if err := s.DBManager.DB.First(&user, userID).Error; err != nil {
+		return false, fmt.Errorf("utilisateur introuvable pour userID : %d", userID)
+	}
 
-    // Construire les paramètres pour le déplacement dans S3
-    sourceBucket := album.BucketName
-    sourceKey := media.Name
-    targetBucket := privateAlbum.BucketName
+	// Vérifier si l'utilisateur a un PIN défini
+	pinRequired := user.Pin == "" || user.Pin == ""
 
-    // Déplacer le fichier dans S3
-    if err := s.S3Service.MoveObject(sourceBucket, sourceKey, targetBucket); err != nil {
-        return fmt.Errorf("échec du déplacement du média dans S3 : %v", err)
-    }
+	// Récupérer l'album privé de l'utilisateur
+	var privateAlbum models.Album
+	if err := s.DBManager.DB.First(&privateAlbum, user.PrivateAlbumID).Error; err != nil {
+		return false, fmt.Errorf("album privé introuvable pour userID : %d", userID)
+	}
 
-    // Mettre à jour le média pour qu'il soit associé à l'album privé
-    media.AlbumID = privateAlbum.ID
-    media.Path = fmt.Sprintf("%s/%s", targetBucket, sourceKey)
+	// Construire les paramètres pour le déplacement dans S3
+	sourceBucket := album.BucketName
+	sourceKey := media.Name
+	targetBucket := privateAlbum.BucketName
 
-    // Sauvegarder les modifications
-    if err := s.DBManager.DB.Save(&media).Error; err != nil {
-        return fmt.Errorf("échec de la mise à jour du média : %v", err)
-    }
+	// Déplacer le fichier dans S3
+	if err := s.S3Service.MoveObject(sourceBucket, sourceKey, targetBucket); err != nil {
+		return false, fmt.Errorf("échec du déplacement du média dans S3 : %v", err)
+	}
 
-    return nil
+	// Mettre à jour le média pour qu'il soit associé à l'album privé
+	media.AlbumID = privateAlbum.ID
+	media.Path = fmt.Sprintf("%s/%s", targetBucket, sourceKey)
+
+	// Sauvegarder les modifications
+	if err := s.DBManager.DB.Save(&media).Error; err != nil {
+		return false, fmt.Errorf("échec de la mise à jour du média : %v", err)
+	}
+
+	log.Printf("Média marqué comme privé avec succès")
+	return pinRequired, nil
 }
 
 func (s *MediaService) DownloadMedia(mediaID uint, userID uint, w io.Writer) error {

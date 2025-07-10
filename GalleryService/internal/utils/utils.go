@@ -10,7 +10,7 @@ import (
     _ "image/jpeg"
     _ "image/png"
     "os"
-
+    "golang.org/x/crypto/bcrypt"
 )
 
 func GetUserIDFromContext(ctx context.Context) (uint, error) {
@@ -70,4 +70,9 @@ func HammingDistance(hash1, hash2 uint64) int {
 
     log.Printf("Distance de Hamming calculée : %d", dist)
     return dist
+}
+
+func HashPin(pin string) string {
+    hash, _ := bcrypt.GenerateFromPassword([]byte(pin), bcrypt.DefaultCost)
+    return string(hash)
 }

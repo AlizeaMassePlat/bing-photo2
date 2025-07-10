@@ -123,10 +123,11 @@ func main() {
 	r.HandleFunc("/media/similar", galleryHandler.DetectSimilarMediaHandler).Methods("POST", "OPTIONS")
 	r.HandleFunc("/media/album/{id}", galleryHandler.GetMediaByAlbumHandler).Methods("GET", "OPTIONS")
 	r.HandleFunc("/media/{id}/move", galleryHandler.MoveMediaHandler).Methods("POST", "OPTIONS")
-
+	
 
 	// User routes
 	r.HandleFunc("/users", galleryHandler.CreateUserHandler).Methods("POST", "OPTIONS")
+	r.HandleFunc("/users/pin", galleryHandler.SetUserPinHandler).Methods("POST", "OPTIONS")
 
 	// Consent routes
 	r.HandleFunc("/consents", galleryHandler.AddConsentHandler).Methods("POST", "OPTIONS")
