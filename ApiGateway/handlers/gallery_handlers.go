@@ -969,3 +969,41 @@ func (g *GalleryGateway) SetUserPinHandler(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
 }
+func (g *GalleryGateway) VerifyUserPinHandler(w http.ResponseWriter, r *http.Request) {
+    type reqBody struct {
+        UserID uint32 `json:"user_id"`
+        Pin    string `json:"pin"`
+    }
+    var body reqBody
+    if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+        http.Error(w, "Requête invalide", http.StatusBadRequest)
+        log.Printf("Erreur décodage JSON: %v", err)
+        return
+    }
+
+    authHeader := r.Header.Get("Authorization")
+    if authHeader == "" {
+        http.Error(w, "Authorization header missing", http.StatusUnauthorized)
+        log.Println("Authorization header missing")
+        return
+    }
+    md := metadata.New(map[string]string{"authorization": authHeader})
+    ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+    grpcReq := &proto.VerifyUserPinRequest{
+        UserId: body.UserID,
+        Pin:    body.Pin,
+    }
+    resp, err := g.UserClient.VerifyUserPin(ctx, grpcReq)
+    if err != nil {
+        log.Printf("Erreur gRPC VerifyUserPin: %v", err)
+        http.Error(w, "Erreur lors de la vérification du PIN", http.StatusInternalServerError)
+        return
+    }
+
+    log.Printf("Résultat gRPC: valid=%v, message=%s", resp.Valid, resp.Message)
+    json.NewEncoder(w).Encode(map[string]interface{}{
+        "valid":   resp.Valid,
+        "message": resp.Message,
+    })
+}

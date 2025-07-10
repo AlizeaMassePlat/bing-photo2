@@ -528,6 +528,45 @@ func (s *galleryServer) SetUserPin(ctx context.Context, req *proto.SetUserPinReq
 	}, nil
 }
 
+func (s *galleryServer) VerifyUserPin(ctx context.Context, req *proto.VerifyUserPinRequest) (*proto.VerifyUserPinResponse, error) {
+    userID := req.UserId
+    if userID == 0 {
+        var id uint
+        var err error
+        id, err = jwt.ExtractUserIDFromContext(ctx)
+        if err != nil {
+            log.Printf("Erreur extraction userID: %v", err) // <-- AJOUT
+            return nil, status.Errorf(codes.Unauthenticated, "Token invalide ou manquant")
+        }
+        userID = uint32(id)
+    }
+
+    if req.Pin == "" {
+        log.Printf("PIN vide reçu pour userID=%d", userID) // <-- AJOUT
+        return nil, status.Errorf(codes.InvalidArgument, "Le PIN ne peut pas être vide")
+    }
+
+    // Vérifier le PIN
+    isValid, err := s.userService.VerifyUserPin(uint(userID), req.Pin)
+    if err != nil {
+        log.Printf("Erreur service VerifyUserPin (userID=%d): %v", userID, err) // <-- AJOUT
+        return nil, status.Errorf(codes.Internal, "Erreur lors de la vérification du PIN : %v", err)
+    }
+
+    log.Printf("Résultat vérification PIN userID=%d: %v", userID, isValid) // <-- AJOUT
+    if isValid {
+        return &proto.VerifyUserPinResponse{
+            Valid:   true,
+            Message: "PIN vérifié avec succès",
+        }, nil
+    } else {
+        return &proto.VerifyUserPinResponse{
+            Valid:   false,
+            Message: "PIN incorrect",
+        }, nil
+    }
+}
+
 func main() {
 	// Load environment variables
 	if err := godotenv.Load(); err != nil {
@@ -583,6 +622,7 @@ func main() {
 		"/proto.ConsentService/CheckConsent":  true,
 		"/proto.ConsentService/RevokeConsent": true,
 		"/proto.UserService/SetUserPin":        true,
+		"/proto.UserService/VerifyUserPin":    true,
 	}
 
 	// Créer le serveur gRPC avec intercepteur JWT

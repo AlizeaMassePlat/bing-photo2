@@ -164,3 +164,21 @@ func (s *UserService) UpdatePin(userID uint, hashedPin string) error {
 	user.Pin = hashedPin
 	return s.DBManager.DB.Save(&user).Error
 }
+
+// VerifyUserPin vérifie si le PIN fourni correspond au hash stocké pour l'utilisateur
+func (s *UserService) VerifyUserPin(userID uint, pin string) (bool, error) {
+	var user models.User
+	err := s.DBManager.DB.First(&user, userID).Error
+	if err != nil {
+		return false, fmt.Errorf("utilisateur introuvable : %v", err)
+	}
+
+	// Vérifier si l'utilisateur a un PIN défini
+	if user.Pin == "" {
+		return false, fmt.Errorf("aucun PIN défini pour cet utilisateur")
+	}
+
+	// Comparer le PIN fourni avec le hash stocké
+	isValid := compareHashAndPin(user.Pin, pin)
+	return isValid, nil
+}

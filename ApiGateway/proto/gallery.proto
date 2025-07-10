@@ -28,6 +28,7 @@ service MediaService {
 service UserService {
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
   rpc SetUserPin (SetUserPinRequest) returns (SetUserPinResponse);
+  rpc VerifyUserPin (VerifyUserPinRequest) returns (VerifyUserPinResponse);
 }
 
 service ConsentService {
@@ -280,4 +281,14 @@ message SetUserPinRequest {
 
 message SetUserPinResponse {
   string message = 1;
+}
+
+message VerifyUserPinRequest {
+  uint32 user_id = 1;
+  string pin = 2;
+}
+
+message VerifyUserPinResponse {
+  bool valid = 1;
+  string message = 2;
 }

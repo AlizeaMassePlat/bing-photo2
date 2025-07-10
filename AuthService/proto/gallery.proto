@@ -20,10 +20,23 @@ service MediaService {
   rpc DownloadMedia (DownloadMediaRequest) returns (DownloadMediaResponse);
   rpc DeleteMedia (DeleteMediaRequest) returns (DeleteMediaResponse);
   rpc DetectSimilarMedia (DetectSimilarMediaRequest) returns (DetectSimilarMediaResponse);
+  rpc AddMediaToFavorite (AddMediaToFavoriteRequest) returns (AddMediaToFavoriteResponse);
+  rpc GetMediaByAlbum(GetMediaByAlbumRequest) returns (GetMediaByAlbumResponse);
+  rpc MoveMediaToAlbum(MoveMediaRequest) returns (MoveMediaResponse);
 }
 
 service UserService {
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc SetUserPin (SetUserPinRequest) returns (SetUserPinResponse);
+  rpc VerifyUserPin (VerifyUserPinRequest) returns (VerifyUserPinResponse);
+}
+
+service ConsentService {
+  rpc AddConsent (AddConsentRequest) returns (AddConsentResponse);
+  rpc GetUserConsents (GetUserConsentsRequest) returns (GetUserConsentsResponse);
+  rpc GetActiveConsent (GetActiveConsentRequest) returns (GetActiveConsentResponse);
+  rpc CheckConsent (CheckConsentRequest) returns (CheckConsentResponse);
+  rpc RevokeConsent (RevokeConsentRequest) returns (RevokeConsentResponse);
 }
 
 // Album messages
@@ -41,8 +54,16 @@ message GetAlbumsByUserRequest {
   uint32 user_id = 1;
 }
 
+message AlbumWithMedia {
+  uint32 id = 1;
+  string name = 2;
+  string description = 3;
+  uint32 user_id = 4;
+  repeated Media media = 5;
+}
+
 message GetAlbumsByUserResponse {
-  repeated Album albums = 1;
+  repeated AlbumWithMedia albums = 1;
 }
 
 message UpdateAlbumRequest {
@@ -64,7 +85,8 @@ message DeleteAlbumResponse {
 }
 
 message GetPrivateAlbumRequest {
-  uint32 album_id = 1;
+  uint32 user_id = 1;
+  string type = 2;
 }
 
 message GetPrivateAlbumResponse {
@@ -92,11 +114,12 @@ message GetMediaByUserResponse {
 
 message MarkAsPrivateRequest {
   uint32 media_id = 1;
-  string pin = 2;
 }
 
 message MarkAsPrivateResponse {
   string message = 1;
+  bool pin_required = 2; 
+
 }
 
 message GetPrivateMediaRequest {
@@ -133,6 +156,16 @@ message CreateUserResponse {
   string message = 1;
 }
 
+// Requête
+message GetMediaByAlbumRequest {
+  uint32 album_id = 1;
+}
+
+// Réponse
+message GetMediaByAlbumResponse {
+  repeated Media media = 1;
+}
+
 // Data structures
 message Album {
   uint32 id = 1;
@@ -147,8 +180,10 @@ message Media {
   string name = 2;
   uint32 album_id = 3;
   uint32 file_size = 4;
+  string path = 5;
+  bool is_private = 6;
+  bool is_favorite = 7;
 }
-
 message MediaGroup {
   repeated Media media = 1;
 }
@@ -159,4 +194,101 @@ message DetectSimilarMediaRequest {
 
 message DetectSimilarMediaResponse {
   repeated MediaGroup groups = 1;
+}
+
+message AddMediaToFavoriteRequest {
+  uint32 media_id = 1;
+}
+
+message AddMediaToFavoriteResponse {
+  string message = 1;
+}
+
+message MoveMediaRequest {
+    uint32 media_id = 1;
+    uint32 target_album_id = 2;
+}
+
+message MoveMediaResponse {
+    string message = 1;
+}
+
+// Consent messages
+message AddConsentRequest {
+  string consent_type = 1;
+  string consent_version = 2;
+  bool is_granted = 3;
+  string consent_text = 4;
+}
+
+message AddConsentResponse {
+  string message = 1;
+  Consent consent = 2;
+}
+
+message GetUserConsentsRequest {
+  uint32 user_id = 1;
+}
+
+message GetUserConsentsResponse {
+  repeated Consent consents = 1;
+  uint32 count = 2;
+}
+
+message GetActiveConsentRequest {
+  uint32 user_id = 1;
+  string consent_type = 2;
+}
+
+message GetActiveConsentResponse {
+  Consent consent = 1;
+}
+
+message CheckConsentRequest {
+  uint32 user_id = 1;
+  string consent_type = 2;
+}
+
+message CheckConsentResponse {
+  bool has_consent = 1;
+  string consent_type = 2;
+}
+
+message RevokeConsentRequest {
+  uint32 user_id = 1;
+  uint32 consent_id = 2;
+}
+
+message RevokeConsentResponse {
+  string message = 1;
+}
+
+message Consent {
+  uint32 id = 1;
+  string consent_type = 2;
+  string consent_version = 3;
+  bool is_granted = 4;
+  string consent_text = 5;
+  string revoked_at = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}
+
+message SetUserPinRequest {
+  uint32 user_id = 1;     
+  string pin = 2;
+}
+
+message SetUserPinResponse {
+  string message = 1;
+}
+
+message VerifyUserPinRequest {
+  uint32 user_id = 1;
+  string pin = 2;
+}
+
+message VerifyUserPinResponse {
+  bool valid = 1;
+  string message = 2;
 }

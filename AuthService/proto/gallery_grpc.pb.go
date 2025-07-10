@@ -280,6 +280,9 @@ const (
 	MediaService_DownloadMedia_FullMethodName      = "/proto.MediaService/DownloadMedia"
 	MediaService_DeleteMedia_FullMethodName        = "/proto.MediaService/DeleteMedia"
 	MediaService_DetectSimilarMedia_FullMethodName = "/proto.MediaService/DetectSimilarMedia"
+	MediaService_AddMediaToFavorite_FullMethodName = "/proto.MediaService/AddMediaToFavorite"
+	MediaService_GetMediaByAlbum_FullMethodName    = "/proto.MediaService/GetMediaByAlbum"
+	MediaService_MoveMediaToAlbum_FullMethodName   = "/proto.MediaService/MoveMediaToAlbum"
 )
 
 // MediaServiceClient is the client API for MediaService service.
@@ -293,6 +296,9 @@ type MediaServiceClient interface {
 	DownloadMedia(ctx context.Context, in *DownloadMediaRequest, opts ...grpc.CallOption) (*DownloadMediaResponse, error)
 	DeleteMedia(ctx context.Context, in *DeleteMediaRequest, opts ...grpc.CallOption) (*DeleteMediaResponse, error)
 	DetectSimilarMedia(ctx context.Context, in *DetectSimilarMediaRequest, opts ...grpc.CallOption) (*DetectSimilarMediaResponse, error)
+	AddMediaToFavorite(ctx context.Context, in *AddMediaToFavoriteRequest, opts ...grpc.CallOption) (*AddMediaToFavoriteResponse, error)
+	GetMediaByAlbum(ctx context.Context, in *GetMediaByAlbumRequest, opts ...grpc.CallOption) (*GetMediaByAlbumResponse, error)
+	MoveMediaToAlbum(ctx context.Context, in *MoveMediaRequest, opts ...grpc.CallOption) (*MoveMediaResponse, error)
 }
 
 type mediaServiceClient struct {
@@ -373,6 +379,36 @@ func (c *mediaServiceClient) DetectSimilarMedia(ctx context.Context, in *DetectS
 	return out, nil
 }
 
+func (c *mediaServiceClient) AddMediaToFavorite(ctx context.Context, in *AddMediaToFavoriteRequest, opts ...grpc.CallOption) (*AddMediaToFavoriteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddMediaToFavoriteResponse)
+	err := c.cc.Invoke(ctx, MediaService_AddMediaToFavorite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mediaServiceClient) GetMediaByAlbum(ctx context.Context, in *GetMediaByAlbumRequest, opts ...grpc.CallOption) (*GetMediaByAlbumResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMediaByAlbumResponse)
+	err := c.cc.Invoke(ctx, MediaService_GetMediaByAlbum_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mediaServiceClient) MoveMediaToAlbum(ctx context.Context, in *MoveMediaRequest, opts ...grpc.CallOption) (*MoveMediaResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MoveMediaResponse)
+	err := c.cc.Invoke(ctx, MediaService_MoveMediaToAlbum_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MediaServiceServer is the server API for MediaService service.
 // All implementations must embed UnimplementedMediaServiceServer
 // for forward compatibility.
@@ -384,6 +420,9 @@ type MediaServiceServer interface {
 	DownloadMedia(context.Context, *DownloadMediaRequest) (*DownloadMediaResponse, error)
 	DeleteMedia(context.Context, *DeleteMediaRequest) (*DeleteMediaResponse, error)
 	DetectSimilarMedia(context.Context, *DetectSimilarMediaRequest) (*DetectSimilarMediaResponse, error)
+	AddMediaToFavorite(context.Context, *AddMediaToFavoriteRequest) (*AddMediaToFavoriteResponse, error)
+	GetMediaByAlbum(context.Context, *GetMediaByAlbumRequest) (*GetMediaByAlbumResponse, error)
+	MoveMediaToAlbum(context.Context, *MoveMediaRequest) (*MoveMediaResponse, error)
 	mustEmbedUnimplementedMediaServiceServer()
 }
 
@@ -414,6 +453,15 @@ func (UnimplementedMediaServiceServer) DeleteMedia(context.Context, *DeleteMedia
 }
 func (UnimplementedMediaServiceServer) DetectSimilarMedia(context.Context, *DetectSimilarMediaRequest) (*DetectSimilarMediaResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DetectSimilarMedia not implemented")
+}
+func (UnimplementedMediaServiceServer) AddMediaToFavorite(context.Context, *AddMediaToFavoriteRequest) (*AddMediaToFavoriteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMediaToFavorite not implemented")
+}
+func (UnimplementedMediaServiceServer) GetMediaByAlbum(context.Context, *GetMediaByAlbumRequest) (*GetMediaByAlbumResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMediaByAlbum not implemented")
+}
+func (UnimplementedMediaServiceServer) MoveMediaToAlbum(context.Context, *MoveMediaRequest) (*MoveMediaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MoveMediaToAlbum not implemented")
 }
 func (UnimplementedMediaServiceServer) mustEmbedUnimplementedMediaServiceServer() {}
 func (UnimplementedMediaServiceServer) testEmbeddedByValue()                      {}
@@ -562,6 +610,60 @@ func _MediaService_DetectSimilarMedia_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MediaService_AddMediaToFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddMediaToFavoriteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaServiceServer).AddMediaToFavorite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MediaService_AddMediaToFavorite_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaServiceServer).AddMediaToFavorite(ctx, req.(*AddMediaToFavoriteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MediaService_GetMediaByAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMediaByAlbumRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaServiceServer).GetMediaByAlbum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MediaService_GetMediaByAlbum_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaServiceServer).GetMediaByAlbum(ctx, req.(*GetMediaByAlbumRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MediaService_MoveMediaToAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MoveMediaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaServiceServer).MoveMediaToAlbum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MediaService_MoveMediaToAlbum_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaServiceServer).MoveMediaToAlbum(ctx, req.(*MoveMediaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MediaService_ServiceDesc is the grpc.ServiceDesc for MediaService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -597,13 +699,27 @@ var MediaService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DetectSimilarMedia",
 			Handler:    _MediaService_DetectSimilarMedia_Handler,
 		},
+		{
+			MethodName: "AddMediaToFavorite",
+			Handler:    _MediaService_AddMediaToFavorite_Handler,
+		},
+		{
+			MethodName: "GetMediaByAlbum",
+			Handler:    _MediaService_GetMediaByAlbum_Handler,
+		},
+		{
+			MethodName: "MoveMediaToAlbum",
+			Handler:    _MediaService_MoveMediaToAlbum_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "proto/gallery.proto",
 }
 
 const (
-	UserService_CreateUser_FullMethodName = "/proto.UserService/CreateUser"
+	UserService_CreateUser_FullMethodName    = "/proto.UserService/CreateUser"
+	UserService_SetUserPin_FullMethodName    = "/proto.UserService/SetUserPin"
+	UserService_VerifyUserPin_FullMethodName = "/proto.UserService/VerifyUserPin"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -611,6 +727,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
+	SetUserPin(ctx context.Context, in *SetUserPinRequest, opts ...grpc.CallOption) (*SetUserPinResponse, error)
+	VerifyUserPin(ctx context.Context, in *VerifyUserPinRequest, opts ...grpc.CallOption) (*VerifyUserPinResponse, error)
 }
 
 type userServiceClient struct {
@@ -631,11 +749,33 @@ func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserReques
 	return out, nil
 }
 
+func (c *userServiceClient) SetUserPin(ctx context.Context, in *SetUserPinRequest, opts ...grpc.CallOption) (*SetUserPinResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetUserPinResponse)
+	err := c.cc.Invoke(ctx, UserService_SetUserPin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) VerifyUserPin(ctx context.Context, in *VerifyUserPinRequest, opts ...grpc.CallOption) (*VerifyUserPinResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VerifyUserPinResponse)
+	err := c.cc.Invoke(ctx, UserService_VerifyUserPin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
 type UserServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
+	SetUserPin(context.Context, *SetUserPinRequest) (*SetUserPinResponse, error)
+	VerifyUserPin(context.Context, *VerifyUserPinRequest) (*VerifyUserPinResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -648,6 +788,12 @@ type UnimplementedUserServiceServer struct{}
 
 func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
+}
+func (UnimplementedUserServiceServer) SetUserPin(context.Context, *SetUserPinRequest) (*SetUserPinResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserPin not implemented")
+}
+func (UnimplementedUserServiceServer) VerifyUserPin(context.Context, *VerifyUserPinRequest) (*VerifyUserPinResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyUserPin not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -688,6 +834,42 @@ func _UserService_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_SetUserPin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserPinRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).SetUserPin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_SetUserPin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).SetUserPin(ctx, req.(*SetUserPinRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_VerifyUserPin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyUserPinRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).VerifyUserPin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_VerifyUserPin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).VerifyUserPin(ctx, req.(*VerifyUserPinRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -698,6 +880,268 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateUser",
 			Handler:    _UserService_CreateUser_Handler,
+		},
+		{
+			MethodName: "SetUserPin",
+			Handler:    _UserService_SetUserPin_Handler,
+		},
+		{
+			MethodName: "VerifyUserPin",
+			Handler:    _UserService_VerifyUserPin_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "proto/gallery.proto",
+}
+
+const (
+	ConsentService_AddConsent_FullMethodName       = "/proto.ConsentService/AddConsent"
+	ConsentService_GetUserConsents_FullMethodName  = "/proto.ConsentService/GetUserConsents"
+	ConsentService_GetActiveConsent_FullMethodName = "/proto.ConsentService/GetActiveConsent"
+	ConsentService_CheckConsent_FullMethodName     = "/proto.ConsentService/CheckConsent"
+	ConsentService_RevokeConsent_FullMethodName    = "/proto.ConsentService/RevokeConsent"
+)
+
+// ConsentServiceClient is the client API for ConsentService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ConsentServiceClient interface {
+	AddConsent(ctx context.Context, in *AddConsentRequest, opts ...grpc.CallOption) (*AddConsentResponse, error)
+	GetUserConsents(ctx context.Context, in *GetUserConsentsRequest, opts ...grpc.CallOption) (*GetUserConsentsResponse, error)
+	GetActiveConsent(ctx context.Context, in *GetActiveConsentRequest, opts ...grpc.CallOption) (*GetActiveConsentResponse, error)
+	CheckConsent(ctx context.Context, in *CheckConsentRequest, opts ...grpc.CallOption) (*CheckConsentResponse, error)
+	RevokeConsent(ctx context.Context, in *RevokeConsentRequest, opts ...grpc.CallOption) (*RevokeConsentResponse, error)
+}
+
+type consentServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewConsentServiceClient(cc grpc.ClientConnInterface) ConsentServiceClient {
+	return &consentServiceClient{cc}
+}
+
+func (c *consentServiceClient) AddConsent(ctx context.Context, in *AddConsentRequest, opts ...grpc.CallOption) (*AddConsentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddConsentResponse)
+	err := c.cc.Invoke(ctx, ConsentService_AddConsent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) GetUserConsents(ctx context.Context, in *GetUserConsentsRequest, opts ...grpc.CallOption) (*GetUserConsentsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserConsentsResponse)
+	err := c.cc.Invoke(ctx, ConsentService_GetUserConsents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) GetActiveConsent(ctx context.Context, in *GetActiveConsentRequest, opts ...grpc.CallOption) (*GetActiveConsentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetActiveConsentResponse)
+	err := c.cc.Invoke(ctx, ConsentService_GetActiveConsent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) CheckConsent(ctx context.Context, in *CheckConsentRequest, opts ...grpc.CallOption) (*CheckConsentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckConsentResponse)
+	err := c.cc.Invoke(ctx, ConsentService_CheckConsent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) RevokeConsent(ctx context.Context, in *RevokeConsentRequest, opts ...grpc.CallOption) (*RevokeConsentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RevokeConsentResponse)
+	err := c.cc.Invoke(ctx, ConsentService_RevokeConsent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ConsentServiceServer is the server API for ConsentService service.
+// All implementations must embed UnimplementedConsentServiceServer
+// for forward compatibility.
+type ConsentServiceServer interface {
+	AddConsent(context.Context, *AddConsentRequest) (*AddConsentResponse, error)
+	GetUserConsents(context.Context, *GetUserConsentsRequest) (*GetUserConsentsResponse, error)
+	GetActiveConsent(context.Context, *GetActiveConsentRequest) (*GetActiveConsentResponse, error)
+	CheckConsent(context.Context, *CheckConsentRequest) (*CheckConsentResponse, error)
+	RevokeConsent(context.Context, *RevokeConsentRequest) (*RevokeConsentResponse, error)
+	mustEmbedUnimplementedConsentServiceServer()
+}
+
+// UnimplementedConsentServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedConsentServiceServer struct{}
+
+func (UnimplementedConsentServiceServer) AddConsent(context.Context, *AddConsentRequest) (*AddConsentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddConsent not implemented")
+}
+func (UnimplementedConsentServiceServer) GetUserConsents(context.Context, *GetUserConsentsRequest) (*GetUserConsentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserConsents not implemented")
+}
+func (UnimplementedConsentServiceServer) GetActiveConsent(context.Context, *GetActiveConsentRequest) (*GetActiveConsentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetActiveConsent not implemented")
+}
+func (UnimplementedConsentServiceServer) CheckConsent(context.Context, *CheckConsentRequest) (*CheckConsentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckConsent not implemented")
+}
+func (UnimplementedConsentServiceServer) RevokeConsent(context.Context, *RevokeConsentRequest) (*RevokeConsentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RevokeConsent not implemented")
+}
+func (UnimplementedConsentServiceServer) mustEmbedUnimplementedConsentServiceServer() {}
+func (UnimplementedConsentServiceServer) testEmbeddedByValue()                        {}
+
+// UnsafeConsentServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ConsentServiceServer will
+// result in compilation errors.
+type UnsafeConsentServiceServer interface {
+	mustEmbedUnimplementedConsentServiceServer()
+}
+
+func RegisterConsentServiceServer(s grpc.ServiceRegistrar, srv ConsentServiceServer) {
+	// If the following call pancis, it indicates UnimplementedConsentServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&ConsentService_ServiceDesc, srv)
+}
+
+func _ConsentService_AddConsent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddConsentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).AddConsent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_AddConsent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).AddConsent(ctx, req.(*AddConsentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_GetUserConsents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserConsentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).GetUserConsents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_GetUserConsents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).GetUserConsents(ctx, req.(*GetUserConsentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_GetActiveConsent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetActiveConsentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).GetActiveConsent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_GetActiveConsent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).GetActiveConsent(ctx, req.(*GetActiveConsentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_CheckConsent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckConsentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).CheckConsent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_CheckConsent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).CheckConsent(ctx, req.(*CheckConsentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_RevokeConsent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeConsentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).RevokeConsent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_RevokeConsent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).RevokeConsent(ctx, req.(*RevokeConsentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ConsentService_ServiceDesc is the grpc.ServiceDesc for ConsentService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ConsentService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.ConsentService",
+	HandlerType: (*ConsentServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddConsent",
+			Handler:    _ConsentService_AddConsent_Handler,
+		},
+		{
+			MethodName: "GetUserConsents",
+			Handler:    _ConsentService_GetUserConsents_Handler,
+		},
+		{
+			MethodName: "GetActiveConsent",
+			Handler:    _ConsentService_GetActiveConsent_Handler,
+		},
+		{
+			MethodName: "CheckConsent",
+			Handler:    _ConsentService_CheckConsent_Handler,
+		},
+		{
+			MethodName: "RevokeConsent",
+			Handler:    _ConsentService_RevokeConsent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
