@@ -43,7 +43,7 @@ func NewDBManagerService() (*DBManagerService, error) {
 }
 
 func (manager *DBManagerService) AutoMigrate() error {
-	err := manager.DB.AutoMigrate(&models.User{}, &models.RevokedToken{})
+	err := manager.DB.AutoMigrate(&models.User{}, &models.RevokedToken{}, &models.RefreshToken{})
 	if err != nil {
 		return fmt.Errorf("erreur lors de la migration de la base de données : %v", err)
 	}

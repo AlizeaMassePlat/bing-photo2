@@ -40,17 +40,20 @@ func (g *ApiGateway) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	res, err := g.AuthClient.Login(context.Background(), req)
 	if err != nil {
-		http.Error(w, "Login failed"+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Login failed"+err.Error(), http.StatusUnauthorized)
 		log.Printf("Login error: %v\n", err)
 		return
 	}
 
-	response := map[string]string{"Token": res.Token}
-
+	response := map[string]string{
+		"Token":        res.Token,
+		"RefreshToken": res.RefreshToken,
+		"Message":      res.Message,
+	}
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Failed to encode response: %v\n", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusUnauthorized)
 		return
 	}
 }
@@ -77,7 +80,7 @@ func (g *ApiGateway) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	res, err := g.AuthClient.Register(context.Background(), req)
 	if err != nil {
-		http.Error(w, "Register failed"+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Register failed"+err.Error(), http.StatusUnauthorized)
 		log.Printf("Register error: %v\n", err)
 		return
 	}
@@ -87,7 +90,7 @@ func (g *ApiGateway) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Failed to encode response: %v\n", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusUnauthorized)
 		return
 	}
 }
@@ -114,7 +117,7 @@ func (g *ApiGateway) ForgotPasswordHandler(w http.ResponseWriter, r *http.Reques
 
 	res, err := g.AuthClient.ForgotPassword(context.Background(), req)
 	if err != nil {
-		http.Error(w, "Forgot password failed"+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Forgot password failed"+err.Error(), http.StatusUnauthorized)
 		log.Printf("Forgot password error: %v\n", err)
 		return
 	}
@@ -123,7 +126,7 @@ func (g *ApiGateway) ForgotPasswordHandler(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Failed to encode response: %v\n", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusUnauthorized)
 		return
 	}
 }
@@ -150,7 +153,7 @@ func (g *ApiGateway) ResetPasswordHandler(w http.ResponseWriter, r *http.Request
 
 	res, err := g.AuthClient.ResetPassword(context.Background(), req)
 	if err != nil {
-		http.Error(w, "Reset password failed: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Reset password failed: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Reset password error: %v\n", err)
 		return
 	}
@@ -160,7 +163,7 @@ func (g *ApiGateway) ResetPasswordHandler(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Failed to encode response: %v\n", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusUnauthorized)
 		return
 	}
 }
@@ -186,7 +189,7 @@ func (g *ApiGateway) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = g.AuthClient.Logout(ctx, &proto.LogoutRequest{}) // pas besoin de Token dans le body
 	if err != nil {
-		http.Error(w, "Erreur lors de la déconnexion : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de la déconnexion : "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -205,7 +208,7 @@ func (g *ApiGateway) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 func (g *ApiGateway) GoogleHandler(w http.ResponseWriter, r *http.Request) {
 	res, err := g.AuthClient.LoginWithGoogle(context.Background(), &proto.GoogleAuthRequest{})
 	if err != nil {
-		http.Error(w, "Failed to generate URL", http.StatusInternalServerError)
+		http.Error(w, "Failed to generate URL", http.StatusUnauthorized)
 		log.Printf("Failed to generate URL: %v\n", err)
 		return
 	}
@@ -245,7 +248,7 @@ func (g *ApiGateway) GoogleCallbackHandler(w http.ResponseWriter, r *http.Reques
 	// ✅ Appeler le service Auth
 	res, err := g.AuthClient.GoogleAuthCallback(context.Background(), req)
 	if err != nil {
-		http.Error(w, "Google callback failed: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Google callback failed: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Google callback error: %v\n", err)
 		return
 	}
@@ -274,7 +277,7 @@ func (g *ApiGateway) ValidateTokenHandler(w http.ResponseWriter, r *http.Request
 	// Appeler le client AuthService pour valider le token
 	res, err := g.AuthClient.ValidateToken(context.Background(), req)
 	if err != nil {
-		http.Error(w, "Échec de validation du token", http.StatusInternalServerError)
+		http.Error(w, "Échec de validation du token", http.StatusUnauthorized)
 		log.Printf("Token validation error: %v\n", err)
 		return
 	}
@@ -313,7 +316,7 @@ func (g *ApiGateway) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	res, err := g.AuthClient.UpdateUser(ctx, &req)
 	if err != nil {
-		http.Error(w, "Failed to update user: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to update user: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Update user error: %v\n", err)
 		return
 	}
@@ -325,7 +328,7 @@ func (g *ApiGateway) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 // func (g *ApiGateway) GetMeHandler(w http.ResponseWriter, r *http.Request) {
 // 	res, err := g.AuthClient.GetMe(context.Background(), &proto.GetMeRequest{})
 // 	if err != nil {
-// 		http.Error(w, "Failed to get user: "+err.Error(), http.StatusInternalServerError)
+// 		http.Error(w, "Failed to get user: "+err.Error(), http.StatusUnauthorized)
 // 		log.Printf("Get user error: %v\n", err)
 // 		return
 // 	}
@@ -354,11 +357,39 @@ func (g *ApiGateway) GetMeHandler(w http.ResponseWriter, r *http.Request) {
 
 	res, err := g.AuthClient.GetMe(ctx, &proto.GetMeRequest{})
 	if err != nil {
-		http.Error(w, "Erreur lors de la récupération de l'utilisateur : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de la récupération de l'utilisateur : "+err.Error(), http.StatusUnauthorized)
 		log.Printf("GetMeHandler: erreur gRPC : %v", err)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
+}
+
+func (g *ApiGateway) RefreshTokenHandler(w http.ResponseWriter, r *http.Request) {
+	type reqBody struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+	var body reqBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Requête invalide", http.StatusBadRequest)
+		log.Printf("Erreur décodage JSON: %v", err)
+		return
+	}
+
+	grpcReq := &proto.RefreshTokenRequest{
+		RefreshToken: body.RefreshToken,
+	}
+	resp, err := g.AuthClient.RefreshToken(r.Context(), grpcReq)
+	if err != nil {
+		log.Printf("Erreur gRPC RefreshToken: %v", err)
+		http.Error(w, "Erreur lors du refresh token", http.StatusUnauthorized)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"access_token":         resp.Token,
+		"refresh_token": resp.RefreshToken,
+		"message":       resp.Message,
+	})
 }

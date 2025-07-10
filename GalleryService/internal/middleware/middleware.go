@@ -11,6 +11,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
 )
 
 // --- INTERFACES ---
@@ -127,7 +129,7 @@ func AuthInterceptor(jwtService JWTService, methodsToIntercept map[string]bool) 
 		// Vérifier le token
 		claims, err := jwtService.VerifyToken(token)
 		if err != nil {
-			return nil, fmt.Errorf("token invalide : %v", err)
+			return nil, status.Errorf(codes.Unauthenticated, "token invalide : %v", err)
 		}
 
 		// Extraire et injecter le userID

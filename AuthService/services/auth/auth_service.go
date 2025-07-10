@@ -63,30 +63,35 @@ func Initialize() (*AuthService, error) {
 	return authService, nil
 }
 
-func (s *AuthService) LoginWithEmail(u models.User, password string) (string, error) {
+func (s *AuthService) LoginWithEmail(u models.User, password string) (string, string, error) {
 	// 1. Vérifier si l'utilisateur existe dans la base de données
 	var existingUser models.User
 	err := s.DBManager.DB.Where("email = ?", u.Email).First(&existingUser).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", fmt.Errorf("utilisateur introuvable avec cet email : %s", u.Email)
+			return "", "", fmt.Errorf("utilisateur introuvable avec cet email : %s", u.Email)
 		}
-		return "", fmt.Errorf("erreur lors de la recherche de l'utilisateur : %v", err)
+		return "", "", fmt.Errorf("erreur lors de la recherche de l'utilisateur : %v", err)
 	}
 
 	// 2. Comparer le mot de passe fourni avec le mot de passe haché dans la base de données
 	if !s.Security.ComparePasswords(existingUser.Password, password) {
-		return "", errors.New("mot de passe incorrect")
+		return "", "", errors.New("mot de passe incorrect")
 	}
 
 	// 3. Générer un token JWT pour l'utilisateur
 	token, err := s.JWTService.GenerateToken(uint(existingUser.ID))
 	if err != nil {
-		return "", fmt.Errorf("erreur lors de la génération du token JWT : %v", err)
+		return "", "", fmt.Errorf("erreur lors de la génération du token JWT : %v", err)
 	}
 
-	// 4. Retourner le token JWT généré
-	return token, nil
+	refreshToken, _, err := s.JWTService.GenerateRefreshToken(uint(existingUser.ID))
+	if err != nil {
+		return "", "", fmt.Errorf("erreur lors de la génération du refresh token : %v", err)
+	}
+
+	// 4. Retourner le token JWT et le refresh token générés
+	return token, refreshToken, nil
 }
 
 func (s *AuthService) RegisterWithEmail(u models.User) (bool, error) {

@@ -56,7 +56,7 @@ func (h *MediaHandler) AddMedia(w http.ResponseWriter, r *http.Request) {
 	// Appeler le service pour ajouter le fichier
 	err = h.MediaService.AddMedia(&media, file, fileHeader.Size)
 	if err != nil {
-		http.Error(w, "Erreur lors de l'ajout du fichier : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de l'ajout du fichier : "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -82,7 +82,7 @@ func (h *MediaHandler) GetMediaByUser(w http.ResponseWriter, r *http.Request) {
 	// Appeler le service pour récupérer les médias
 	mediaList, err := h.MediaService.GetMediaByUser(uint(userID))
 	if err != nil {
-		http.Error(w, "Erreur lors de la récupération des fichiers : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de la récupération des fichiers : "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -109,7 +109,7 @@ func (h *MediaHandler) GetPrivateMedia(w http.ResponseWriter, r *http.Request) {
 
 	media, err := h.MediaService.GetPrivateMedia(uint(userID))
 	if err != nil {
-		http.Error(w, "Erreur lors de la récupération des photos privées", http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de la récupération des photos privées", http.StatusUnauthorized)
 		return
 	}
 
@@ -137,7 +137,7 @@ func (h *MediaHandler) MarkAsPrivate(w http.ResponseWriter, r *http.Request) {
 	// Appeler le service avec simulate
 	pinRequired, err := h.MediaService.MarkAsPrivate(request.MediaID, userID, request.Simulate)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -162,7 +162,7 @@ func (h *MediaHandler) DownloadMedia(w http.ResponseWriter, r *http.Request) {
 
 	// Télécharger le média
 	if err := h.MediaService.DownloadMedia(uint(mediaID), w); err != nil {
-		http.Error(w, "Error downloading media", http.StatusInternalServerError)
+		http.Error(w, "Error downloading media", http.StatusUnauthorized)
 		log.Printf("Error downloading media: %v", err)
 		return
 	}
@@ -190,7 +190,7 @@ func (h *MediaHandler) DeleteMedia(w http.ResponseWriter, r *http.Request) {
     // Supprimer le média
     if err := h.MediaService.DeleteMedia(uint(mediaID), userID); err != nil {
         log.Printf("Error deleting media: %v", err)
-        http.Error(w, fmt.Sprintf("Failed to delete media: %v", err), http.StatusInternalServerError)
+        http.Error(w, fmt.Sprintf("Failed to delete media: %v", err), http.StatusUnauthorized)
         return
     }
 
@@ -223,14 +223,14 @@ func (h *MediaHandler) DetectSimilarMedia(w http.ResponseWriter, r *http.Request
     similarMedia, err := h.MediaService.DetectSimilarMedia(uint(userID), uint(albumID))
     if err != nil {
         log.Printf("Error detecting similar media: %v", err)
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        http.Error(w, err.Error(), http.StatusUnauthorized)
         return
     }
 
     response, err := json.Marshal(similarMedia)
     if err != nil {
         log.Printf("Error generating JSON response: %v", err)
-        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        http.Error(w, "Internal server error", http.StatusUnauthorized)
         return
     }
 
@@ -261,7 +261,7 @@ func (h *MediaHandler) MoveMedia(w http.ResponseWriter, r *http.Request) {
 
     err = h.MediaService.MoveMediaToAlbum(uint(mediaID), req.TargetAlbumID)
     if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        http.Error(w, err.Error(), http.StatusUnauthorized)
         return
     }
 

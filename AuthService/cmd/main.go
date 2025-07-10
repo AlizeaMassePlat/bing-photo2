@@ -27,7 +27,7 @@ type authServer struct {
 
 func (s *authServer) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
 	// Delegate to the LoginWithEmail function in AuthService
-	token, err := s.authService.LoginWithEmail(models.User{
+	token, refreshToken, err := s.authService.LoginWithEmail(models.User{
 		Email: req.Email,
 	}, req.Password)
 
@@ -35,7 +35,7 @@ func (s *authServer) Login(ctx context.Context, req *proto.LoginRequest) (*proto
 		return &proto.LoginResponse{Message: "Login failed"}, err
 	}
 
-	return &proto.LoginResponse{Token: token, Message: "Login successful"}, nil
+	return &proto.LoginResponse{Token: token, RefreshToken: refreshToken, Message: "Login successful"}, nil
 }
 
 // RegisterWithEmail handles user registration
@@ -153,12 +153,45 @@ func (s *authServer) GoogleAuthCallback(ctx context.Context, req *proto.GoogleAu
 	}
 
 	return &proto.GoogleAuthCallbackResponse{
-		UserInfo: userInfo.Email,
+		UserInfo: jwtToken,
 		Message:  "Login Google réussi",
-		Token:    jwtToken,
 	}, nil
 }
 
+func (s *authServer) RefreshToken(ctx context.Context, req *proto.RefreshTokenRequest) (*proto.RefreshTokenResponse, error) {
+	refreshToken := req.GetRefreshToken()
+	if refreshToken == "" {
+		return &proto.RefreshTokenResponse{Message: "Refresh token manquant"}, fmt.Errorf("refresh token manquant")
+	}
+
+	userID, err := s.JWTService.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		return &proto.RefreshTokenResponse{Message: "Refresh token invalide ou expiré"}, err
+	}
+
+	token, err := s.JWTService.GenerateToken(userID)
+	if err != nil {
+		return &proto.RefreshTokenResponse{Message: "Erreur lors de la génération du token"}, err
+	}
+
+	// Optionnel : générer un nouveau refresh token (rotation)
+	newRefreshToken, _, err := s.JWTService.GenerateRefreshToken(userID)
+	if err != nil {
+		return &proto.RefreshTokenResponse{Message: "Erreur lors de la génération du refresh token"}, err
+	}
+
+	// Révoquer l'ancien refresh token
+	err = s.JWTService.RevokeRefreshToken(refreshToken)
+	if err != nil {
+		return &proto.RefreshTokenResponse{Message: "Erreur lors de la révocation du refresh token"}, err
+	}
+
+	return &proto.RefreshTokenResponse{
+		Token:        token,
+		RefreshToken: newRefreshToken,
+		Message:      "Token rafraîchi avec succès",
+	}, nil
+}
 
 func main() {
 

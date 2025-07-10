@@ -47,7 +47,7 @@ func HandleListBuckets(s storage.Storage) http.HandlerFunc {
 
         log.Println("Encoding response as XML and sending it.")
         if err := xml.NewEncoder(w).Encode(response); err != nil {
-            http.Error(w, "Erreur lors de l'encodage des buckets en XML", http.StatusInternalServerError)
+            http.Error(w, "Erreur lors de l'encodage des buckets en XML", http.StatusUnauthorized)
             log.Printf("Erreur lors de l'encodage des buckets: %v", err)
         }
     }
@@ -69,7 +69,7 @@ func HandleCreateBucket(s storage.Storage) http.HandlerFunc {
         // Vérification si le bucket existe déjà
         exists, err := s.CheckBucketExists(bucketName) 
         if err != nil {
-            http.Error(w, "Erreur lors de la vérification du bucket", http.StatusInternalServerError)
+            http.Error(w, "Erreur lors de la vérification du bucket", http.StatusUnauthorized)
             return
         }
 
@@ -81,7 +81,7 @@ func HandleCreateBucket(s storage.Storage) http.HandlerFunc {
         // Création du bucket si il n'existe pas
         err = s.CreateBucket(bucketName)
         if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
+            http.Error(w, err.Error(), http.StatusUnauthorized)
             return
         }
 
@@ -98,7 +98,7 @@ func HandleCreateBucket(s storage.Storage) http.HandlerFunc {
         w.Header().Set("Location", r.URL.String())
         w.WriteHeader(http.StatusOK)
         if err := xml.NewEncoder(w).Encode(bucketResponse); err != nil {
-            http.Error(w, "Erreur lors de l'encodage XML", http.StatusInternalServerError)
+            http.Error(w, "Erreur lors de l'encodage XML", http.StatusUnauthorized)
         }
     }
 }
@@ -127,7 +127,7 @@ func HandleGetBucket(s storage.Storage) http.HandlerFunc {
         exists, err := s.CheckBucketExists(bucketName)
         if err != nil {
             log.Printf("Erreur lors de la vérification du bucket: %v", err)
-            http.Error(w, "Internal server error", http.StatusInternalServerError)
+            http.Error(w, "Internal server error", http.StatusUnauthorized)
             return
         }
 
@@ -174,7 +174,7 @@ func HandleAddObject(s storage.Storage) http.HandlerFunc {
         // Process the uploaded object
         err := s.AddObject(bucketName, objectName, r.Body, r.Header.Get("X-Amz-Content-Sha256"))
         if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
+            http.Error(w, err.Error(), http.StatusUnauthorized)
             log.Printf("Error uploading object: %v", err)
             return
         }
@@ -218,7 +218,7 @@ func HandleCheckObjectExist(s storage.Storage) http.HandlerFunc {
                 http.Error(w, "Object not found", http.StatusNotFound)
                 return
             }
-            http.Error(w, err.Error(), http.StatusInternalServerError)
+            http.Error(w, err.Error(), http.StatusUnauthorized)
             return
         }
 
@@ -244,7 +244,7 @@ func HandleDownloadObject(s storage.Storage) http.HandlerFunc {
                 http.Error(w, "File not found", http.StatusNotFound)
                 return
             }
-            http.Error(w, err.Error(), http.StatusInternalServerError)
+            http.Error(w, err.Error(), http.StatusUnauthorized)
             return
         }
 
@@ -258,7 +258,7 @@ func HandleDownloadObject(s storage.Storage) http.HandlerFunc {
         w.WriteHeader(http.StatusOK)
 
         if _, err := w.Write(data); err != nil {
-            http.Error(w, "Failed to write file content", http.StatusInternalServerError)
+            http.Error(w, "Failed to write file content", http.StatusUnauthorized)
         }
     }
 }
@@ -286,14 +286,14 @@ func HandleListObjects(s storage.Storage) http.HandlerFunc {
 
         objects, err := s.ListObjects(bucketName, prefix, marker, maxKeysInt)
         if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
+            http.Error(w, err.Error(), http.StatusUnauthorized)
             return
         }
 
         w.Header().Set("Content-Type", "application/xml")
         w.WriteHeader(http.StatusOK)
         if err := xml.NewEncoder(w).Encode(objects); err != nil {
-            http.Error(w, "Erreur lors de l'encodage XML", http.StatusInternalServerError)
+            http.Error(w, "Erreur lors de l'encodage XML", http.StatusUnauthorized)
         }
     }
 }
@@ -321,7 +321,7 @@ func HandleDeleteBucket(s storage.Storage) http.HandlerFunc {
             }
             // Pour toute autre erreur, renvoyer un code 500
             log.Printf("Error deleting bucket %s: %v", bucketName, err)
-            http.Error(w, "Failed to delete bucket", http.StatusInternalServerError)
+            http.Error(w, "Failed to delete bucket", http.StatusUnauthorized)
             return
         }
 
@@ -346,7 +346,7 @@ func HandleDeleteObject(s storage.Storage) http.HandlerFunc {
 
         body, err := io.ReadAll(r.Body)
         if err != nil {
-            http.Error(w, "Error reading request body", http.StatusInternalServerError)
+            http.Error(w, "Error reading request body", http.StatusUnauthorized)
             log.Printf("Error reading request body: %v", err)
             return
         }
@@ -370,7 +370,7 @@ func HandleDeleteObject(s storage.Storage) http.HandlerFunc {
                     log.Printf("Object not found: %s", objectToDelete.Key)
                     continue 
                 }
-                http.Error(w, "Error deleting object", http.StatusInternalServerError)
+                http.Error(w, "Error deleting object", http.StatusUnauthorized)
                 log.Printf("Error deleting object %s: %v", objectToDelete.Key, err)
                 return
             }
@@ -385,7 +385,7 @@ func HandleDeleteObject(s storage.Storage) http.HandlerFunc {
 
         response, err := xml.Marshal(deleteResult)
         if err != nil {
-            http.Error(w, "Error generating XML response", http.StatusInternalServerError)
+            http.Error(w, "Error generating XML response", http.StatusUnauthorized)
             log.Printf("Error generating XML response: %v", err)
             return
         }
@@ -421,7 +421,7 @@ func HandleBucketLocation(s storage.Storage) http.HandlerFunc {
 
         response, err := xml.Marshal(bucket)
         if err != nil {
-            http.Error(w, "Error generating XML response", http.StatusInternalServerError)
+            http.Error(w, "Error generating XML response", http.StatusUnauthorized)
             log.Printf("Error generating XML response: %v", err)
             return
         }
@@ -457,7 +457,7 @@ func HandleBucketLockConfig(s storage.Storage) http.HandlerFunc {
 
         response, err := xml.Marshal(bucket)
         if err != nil {
-            http.Error(w, "Error generating XML response", http.StatusInternalServerError)
+            http.Error(w, "Error generating XML response", http.StatusUnauthorized)
             log.Printf("Error generating XML response: %v", err)
             return
         }
@@ -495,7 +495,7 @@ func HandleBucketDelimiter(s storage.Storage) http.HandlerFunc {
 
         response, err := xml.Marshal(bucket)
         if err != nil {
-            http.Error(w, "Error generating XML response", http.StatusInternalServerError)
+            http.Error(w, "Error generating XML response", http.StatusUnauthorized)
             log.Printf("Error generating XML response: %v", err)
             return
         }
@@ -534,7 +534,7 @@ func HandleMoveObject(s storage.Storage) http.HandlerFunc {
 
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			http.Error(w, "Error reading request body", http.StatusInternalServerError)
+			http.Error(w, "Error reading request body", http.StatusUnauthorized)
 			log.Printf("Error reading request body: %v", err)
 			return
 		}
@@ -561,7 +561,7 @@ func HandleMoveObject(s storage.Storage) http.HandlerFunc {
 			// Copier l'objet
 			err := s.CopyObject(sourceBucket, objectToMove.Key, moveReq.TargetBucket, objectToMove.Key)
 			if err != nil {
-				http.Error(w, "Error moving object", http.StatusInternalServerError)
+				http.Error(w, "Error moving object", http.StatusUnauthorized)
 				log.Printf("Error moving object %s: %v", objectToMove.Key, err)
 				return
 			}
@@ -569,7 +569,7 @@ func HandleMoveObject(s storage.Storage) http.HandlerFunc {
 			// Supprimer l'objet source
 			err = s.DeleteObject(sourceBucket, objectToMove.Key)
 			if err != nil {
-				http.Error(w, "Error deleting source object after move", http.StatusInternalServerError)
+				http.Error(w, "Error deleting source object after move", http.StatusUnauthorized)
 				log.Printf("Error deleting object %s: %v", objectToMove.Key, err)
 				return
 			}
@@ -584,7 +584,7 @@ func HandleMoveObject(s storage.Storage) http.HandlerFunc {
 
 		response, err := xml.Marshal(moveResult)
 		if err != nil {
-			http.Error(w, "Error generating XML response", http.StatusInternalServerError)
+			http.Error(w, "Error generating XML response", http.StatusUnauthorized)
 			log.Printf("Error generating XML response: %v", err)
 			return
 		}

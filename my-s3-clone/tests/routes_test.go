@@ -513,7 +513,7 @@ func TestHandleCreateBucket(t *testing.T) {
 		expectedBody string
 	}{
 		{"test-bucket", http.StatusOK, ""},         
-		{"fail-bucket", http.StatusInternalServerError, "failed to create bucket\n"}, 
+		{"fail-bucket", http.StatusUnauthorized, "failed to create bucket\n"}, 
 	}
 
 	for _, tt := range tests {
@@ -583,7 +583,7 @@ func TestHandleDeleteBucket(t *testing.T) {
 		},
 		{
 			bucketName:   "fail-bucket",
-			expectedCode: http.StatusInternalServerError,
+			expectedCode: http.StatusUnauthorized,
 			expectedBody: "Failed to delete bucket\n",
 		},
 	}

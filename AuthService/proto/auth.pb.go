@@ -77,7 +77,8 @@ func (x *LoginRequest) GetPassword() string {
 type LoginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -115,6 +116,13 @@ func (*LoginResponse) Descriptor() ([]byte, []int) {
 func (x *LoginResponse) GetToken() string {
 	if x != nil {
 		return x.Token
+	}
+	return ""
+}
+
+func (x *LoginResponse) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
 	}
 	return ""
 }
@@ -670,7 +678,6 @@ type GoogleAuthCallbackResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	UserInfo      string                 `protobuf:"bytes,2,opt,name=userInfo,proto3" json:"userInfo,omitempty"`
-	Token         string                 `protobuf:"bytes,3,opt,name=Token,proto3" json:"Token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -715,13 +722,6 @@ func (x *GoogleAuthCallbackResponse) GetMessage() string {
 func (x *GoogleAuthCallbackResponse) GetUserInfo() string {
 	if x != nil {
 		return x.UserInfo
-	}
-	return ""
-}
-
-func (x *GoogleAuthCallbackResponse) GetToken() string {
-	if x != nil {
-		return x.Token
 	}
 	return ""
 }
@@ -1054,6 +1054,110 @@ func (x *GetMeResponse) GetPicture() string {
 	return ""
 }
 
+type RefreshTokenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshTokenRequest) Reset() {
+	*x = RefreshTokenRequest{}
+	mi := &file_proto_auth_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshTokenRequest) ProtoMessage() {}
+
+func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auth_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
+func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
+	return file_proto_auth_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *RefreshTokenRequest) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+type RefreshTokenResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshTokenResponse) Reset() {
+	*x = RefreshTokenResponse{}
+	mi := &file_proto_auth_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshTokenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshTokenResponse) ProtoMessage() {}
+
+func (x *RefreshTokenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auth_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshTokenResponse.ProtoReflect.Descriptor instead.
+func (*RefreshTokenResponse) Descriptor() ([]byte, []int) {
+	return file_proto_auth_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *RefreshTokenResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *RefreshTokenResponse) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+func (x *RefreshTokenResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_proto_auth_proto protoreflect.FileDescriptor
 
 const file_proto_auth_proto_rawDesc = "" +
@@ -1061,10 +1165,11 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\x10proto/auth.proto\x12\x05proto\"@\n" +
 	"\fLoginRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"?\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"d\n" +
 	"\rLoginResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\x99\x01\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12#\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\x99\x01\n" +
 	"\x0fRegisterRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1a\n" +
@@ -1093,11 +1198,10 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\aauthUrl\x18\x01 \x01(\tR\aauthUrl\"E\n" +
 	"\x19GoogleAuthCallbackRequest\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x14\n" +
-	"\x05State\x18\x02 \x01(\tR\x05State\"h\n" +
+	"\x05State\x18\x02 \x01(\tR\x05State\"R\n" +
 	"\x1aGoogleAuthCallbackResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\x12\x1a\n" +
-	"\buserInfo\x18\x02 \x01(\tR\buserInfo\x12\x14\n" +
-	"\x05Token\x18\x03 \x01(\tR\x05Token\"%\n" +
+	"\buserInfo\x18\x02 \x01(\tR\buserInfo\"%\n" +
 	"\rLogoutRequest\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"*\n" +
 	"\x0eLogoutResponse\x12\x18\n" +
@@ -1117,7 +1221,13 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x1c\n" +
 	"\tfirstName\x18\x03 \x01(\tR\tfirstName\x12\x1a\n" +
 	"\blastName\x18\x04 \x01(\tR\blastName\x12\x18\n" +
-	"\apicture\x18\x05 \x01(\tR\apicture2\xb6\x05\n" +
+	"\apicture\x18\x05 \x01(\tR\apicture\":\n" +
+	"\x13RefreshTokenRequest\x12#\n" +
+	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"k\n" +
+	"\x14RefreshTokenResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12#\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage2\xff\x05\n" +
 	"\vAuthService\x122\n" +
 	"\x05Login\x12\x13.proto.LoginRequest\x1a\x14.proto.LoginResponse\x12;\n" +
 	"\bRegister\x12\x16.proto.RegisterRequest\x1a\x17.proto.RegisterResponse\x12J\n" +
@@ -1129,7 +1239,8 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\x06Logout\x12\x14.proto.LogoutRequest\x1a\x15.proto.LogoutResponse\x12A\n" +
 	"\n" +
 	"UpdateUser\x12\x18.proto.UpdateUserRequest\x1a\x19.proto.UpdateUserResponse\x122\n" +
-	"\x05GetMe\x12\x13.proto.GetMeRequest\x1a\x14.proto.GetMeResponseB\x0eZ\f/proto;protob\x06proto3"
+	"\x05GetMe\x12\x13.proto.GetMeRequest\x1a\x14.proto.GetMeResponse\x12G\n" +
+	"\fRefreshToken\x12\x1a.proto.RefreshTokenRequest\x1a\x1b.proto.RefreshTokenResponseB\x0eZ\f/proto;protob\x06proto3"
 
 var (
 	file_proto_auth_proto_rawDescOnce sync.Once
@@ -1143,7 +1254,7 @@ func file_proto_auth_proto_rawDescGZIP() []byte {
 	return file_proto_auth_proto_rawDescData
 }
 
-var file_proto_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_proto_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_proto_auth_proto_goTypes = []any{
 	(*LoginRequest)(nil),               // 0: proto.LoginRequest
 	(*LoginResponse)(nil),              // 1: proto.LoginResponse
@@ -1165,6 +1276,8 @@ var file_proto_auth_proto_goTypes = []any{
 	(*UpdateUserResponse)(nil),         // 17: proto.UpdateUserResponse
 	(*GetMeRequest)(nil),               // 18: proto.GetMeRequest
 	(*GetMeResponse)(nil),              // 19: proto.GetMeResponse
+	(*RefreshTokenRequest)(nil),        // 20: proto.RefreshTokenRequest
+	(*RefreshTokenResponse)(nil),       // 21: proto.RefreshTokenResponse
 }
 var file_proto_auth_proto_depIdxs = []int32{
 	0,  // 0: proto.AuthService.Login:input_type -> proto.LoginRequest
@@ -1177,18 +1290,20 @@ var file_proto_auth_proto_depIdxs = []int32{
 	14, // 7: proto.AuthService.Logout:input_type -> proto.LogoutRequest
 	16, // 8: proto.AuthService.UpdateUser:input_type -> proto.UpdateUserRequest
 	18, // 9: proto.AuthService.GetMe:input_type -> proto.GetMeRequest
-	1,  // 10: proto.AuthService.Login:output_type -> proto.LoginResponse
-	3,  // 11: proto.AuthService.Register:output_type -> proto.RegisterResponse
-	5,  // 12: proto.AuthService.ValidateToken:output_type -> proto.ValidateTokenResponse
-	7,  // 13: proto.AuthService.ForgotPassword:output_type -> proto.ForgotPasswordResponse
-	9,  // 14: proto.AuthService.ResetPassword:output_type -> proto.ResetPasswordResponse
-	11, // 15: proto.AuthService.LoginWithGoogle:output_type -> proto.GoogleAuthResponse
-	13, // 16: proto.AuthService.GoogleAuthCallback:output_type -> proto.GoogleAuthCallbackResponse
-	15, // 17: proto.AuthService.Logout:output_type -> proto.LogoutResponse
-	17, // 18: proto.AuthService.UpdateUser:output_type -> proto.UpdateUserResponse
-	19, // 19: proto.AuthService.GetMe:output_type -> proto.GetMeResponse
-	10, // [10:20] is the sub-list for method output_type
-	0,  // [0:10] is the sub-list for method input_type
+	20, // 10: proto.AuthService.RefreshToken:input_type -> proto.RefreshTokenRequest
+	1,  // 11: proto.AuthService.Login:output_type -> proto.LoginResponse
+	3,  // 12: proto.AuthService.Register:output_type -> proto.RegisterResponse
+	5,  // 13: proto.AuthService.ValidateToken:output_type -> proto.ValidateTokenResponse
+	7,  // 14: proto.AuthService.ForgotPassword:output_type -> proto.ForgotPasswordResponse
+	9,  // 15: proto.AuthService.ResetPassword:output_type -> proto.ResetPasswordResponse
+	11, // 16: proto.AuthService.LoginWithGoogle:output_type -> proto.GoogleAuthResponse
+	13, // 17: proto.AuthService.GoogleAuthCallback:output_type -> proto.GoogleAuthCallbackResponse
+	15, // 18: proto.AuthService.Logout:output_type -> proto.LogoutResponse
+	17, // 19: proto.AuthService.UpdateUser:output_type -> proto.UpdateUserResponse
+	19, // 20: proto.AuthService.GetMe:output_type -> proto.GetMeResponse
+	21, // 21: proto.AuthService.RefreshToken:output_type -> proto.RefreshTokenResponse
+	11, // [11:22] is the sub-list for method output_type
+	0,  // [0:11] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -1205,7 +1320,7 @@ func file_proto_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_auth_proto_rawDesc), len(file_proto_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

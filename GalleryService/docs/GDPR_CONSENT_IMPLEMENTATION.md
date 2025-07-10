@@ -154,10 +154,6 @@ err := manager.DB.AutoMigrate(
     &models.User{},
     &models.Album{},
     &models.Media{},
-    &models.Access{},
-    &models.UserAccess{},
-    &models.SimilarGroup{},
-    &models.SimilarMedia{},
     &models.Consent{}, // Nouvelle table
 )
 ```

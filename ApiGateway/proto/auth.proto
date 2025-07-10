@@ -15,6 +15,7 @@ service AuthService {
   rpc Logout (LogoutRequest) returns (LogoutResponse);
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
   rpc GetMe (GetMeRequest) returns (GetMeResponse);
+  rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
 }
 
 // Request and response messages
@@ -25,7 +26,8 @@ message LoginRequest {
 
 message LoginResponse {
   string token = 1;
-  string message = 2;
+  string refresh_token = 2;
+  string message = 3;
 }
 
 message RegisterRequest {
@@ -113,4 +115,14 @@ message GetMeResponse {
   string firstName = 3;
   string lastName = 4;
   string picture = 5;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string token = 1;
+  string refresh_token = 2;
+  string message = 3;
 }

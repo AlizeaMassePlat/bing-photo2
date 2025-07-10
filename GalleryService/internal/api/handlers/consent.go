@@ -51,7 +51,7 @@ func (h *ConsentHandler) AddConsent(w http.ResponseWriter, r *http.Request) {
 	consent, err := h.ConsentService.AddConsent(userID, &req, r)
 	if err != nil {
 		log.Printf("Erreur lors de l'ajout du consentement : %v", err)
-		http.Error(w, fmt.Sprintf("Erreur lors de l'ajout du consentement : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur lors de l'ajout du consentement : %v", err), http.StatusUnauthorized)
 		return
 	}
 
@@ -78,7 +78,7 @@ func (h *ConsentHandler) GetUserConsents(w http.ResponseWriter, r *http.Request)
 	consents, err := h.ConsentService.GetUserConsents(userID)
 	if err != nil {
 		log.Printf("Erreur lors de la récupération des consentements : %v", err)
-		http.Error(w, fmt.Sprintf("Erreur lors de la récupération des consentements : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur lors de la récupération des consentements : %v", err), http.StatusUnauthorized)
 		return
 	}
 
@@ -112,7 +112,7 @@ func (h *ConsentHandler) GetActiveConsent(w http.ResponseWriter, r *http.Request
 	consent, err := h.ConsentService.GetActiveConsent(userID, consentType)
 	if err != nil {
 		log.Printf("Erreur lors de la récupération du consentement actif : %v", err)
-		http.Error(w, fmt.Sprintf("Erreur lors de la récupération du consentement : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur lors de la récupération du consentement : %v", err), http.StatusUnauthorized)
 		return
 	}
 
@@ -147,7 +147,7 @@ func (h *ConsentHandler) RevokeConsent(w http.ResponseWriter, r *http.Request) {
 	err = h.ConsentService.RevokeConsent(userID, uint(consentID), r)
 	if err != nil {
 		log.Printf("Erreur lors de la révocation du consentement : %v", err)
-		http.Error(w, fmt.Sprintf("Erreur lors de la révocation du consentement : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur lors de la révocation du consentement : %v", err), http.StatusUnauthorized)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (h *ConsentHandler) CheckConsent(w http.ResponseWriter, r *http.Request) {
 	hasConsent, err := h.ConsentService.HasValidConsent(userID, consentType)
 	if err != nil {
 		log.Printf("Erreur lors de la vérification du consentement : %v", err)
-		http.Error(w, fmt.Sprintf("Erreur lors de la vérification du consentement : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur lors de la vérification du consentement : %v", err), http.StatusUnauthorized)
 		return
 	}
 

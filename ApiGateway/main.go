@@ -105,6 +105,7 @@ func main() {
 	auth.HandleFunc("/validateToken", authHandler.ValidateTokenHandler).Methods("POST")
 	auth.HandleFunc("/update-user", authHandler.UpdateUserHandler).Methods("PUT", "OPTIONS")
 	auth.HandleFunc("/get-me", authHandler.GetMeHandler).Methods("GET", "OPTIONS")
+	auth.HandleFunc("/refresh-token", authHandler.RefreshTokenHandler).Methods("POST", "OPTIONS")
 
 	// Album routes
 	r.HandleFunc("/albums", galleryHandler.CreateAlbumHandler).Methods("POST", "OPTIONS")

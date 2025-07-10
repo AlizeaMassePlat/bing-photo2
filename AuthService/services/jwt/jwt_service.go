@@ -2,6 +2,8 @@ package jwt
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
@@ -9,13 +11,10 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"google.golang.org/grpc/metadata"
 	"gorm.io/gorm"
 
-	"google.golang.org/grpc/metadata"
-
 	"AuthService/models"
-	"crypto/sha256"
-	"encoding/hex"
 )
 
 type JWTService struct {
@@ -27,94 +26,119 @@ type JWTService struct {
 }
 
 func NewJWTService(db *gorm.DB) (*JWTService, error) {
-	// Initialiser un nouveau service JWT
-
-	// Charger la clé secrète à partir des variables d'environnement
-	SecretKey := []byte(os.Getenv("JWT_SECRET_KEY"))
-	if len(SecretKey) == 0 {
+	secret := []byte(os.Getenv("JWT_SECRET_KEY"))
+	if len(secret) == 0 {
 		return nil, fmt.Errorf("clé secrète JWT non configurée")
 	}
+	return &JWTService{SecretKey: secret, DB: db}, nil
+}
 
-	return &JWTService{
-		SecretKey: SecretKey,
-		DB:        db,
-	}, nil
+func (j *JWTService) GenerateToken(userID uint) (string, error) {
+	claims := jwt.MapClaims{
+		"userID": userID,
+		"exp":    time.Now().Add(24 * time.Hour).Unix(),
+		"iat":    time.Now().Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(j.SecretKey)
+}
+
+func (j *JWTService) GenerateRefreshToken(userID uint) (string, time.Time, error) {
+	claims := jwt.MapClaims{
+		"userID": userID,
+		"type":   "refresh",
+		"exp":    time.Now().Add(7 * 24 * time.Hour).Unix(),
+		"iat":    time.Now().Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(j.SecretKey)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	
+	// Créer le refresh token en base de données
+	refreshToken := models.RefreshToken{}
+	expiresAt := time.Now().Add(7 * 24 * time.Hour)
+	
+	if err := refreshToken.CreateRefreshToken(j.DB, userID, "refresh", signedToken, expiresAt); err != nil {
+		return "", time.Time{}, err
+	}
+	
+	return signedToken, refreshToken.ExpiresAt, nil
 }
 
 func (j *JWTService) VerifyToken(tokenString string) (map[string]interface{}, error) {
-	fmt.Println("Vérification du token brut :", tokenString)
-
-	// Nettoyer "Bearer " si jamais il est encore présent (par précaution)
-	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-	tokenString = strings.TrimSpace(tokenString)
-
+	tokenString = strings.TrimSpace(strings.TrimPrefix(tokenString, "Bearer "))
 	if tokenString == "" {
 		return nil, errors.New("token vide ou mal formaté")
 	}
 
-	// Vérifier si le token est révoqué
 	if j.isTokenRevoked(tokenString) {
 		return nil, errors.New("token révoqué")
 	}
 
-	// Parse le token et vérifie la signature
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// S'assurer que l'algo est bien HMAC (HS256)
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("méthode de signature inattendue : %v", token.Header["alg"])
 		}
-		return []byte(j.SecretKey), nil
+		return j.SecretKey, nil
 	})
 	if err != nil || !token.Valid {
 		return nil, fmt.Errorf("token invalide ou signature incorrecte")
 	}
 
-	// Récupérer les claims
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
 		return nil, errors.New("claims introuvables ou invalides")
 	}
 
-	// Vérification manuelle de l'expiration
-	if exp, ok := claims["exp"].(float64); ok {
-		if int64(exp) < time.Now().Unix() {
-			return nil, errors.New("le token est expiré")
-		}
+	if exp, ok := claims["exp"].(float64); ok && int64(exp) < time.Now().Unix() {
+		return nil, errors.New("le token est expiré")
 	}
-	
+
 	return claims, nil
 }
 
-func (j *JWTService) GenerateToken(userID uint) (string, error) {
-	claims := jwt.MapClaims{
-		"userID":   userID,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
-		"iat":      time.Now().Unix(),
+func (j *JWTService) ValidateRefreshToken(token string) (uint, error) {
+	refreshToken := models.RefreshToken{}
+	valid, err := refreshToken.IsValidRefreshToken(j.DB, token)
+	if err != nil {
+		return 0, err
 	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(j.SecretKey))
+	if !valid {
+		return 0, errors.New("refresh token invalide ou expiré")
+	}
+	return refreshToken.GetUserIDFromToken(j.DB, token)
 }
 
-// VerifyTokenFromContext extrait le token du contexte et le vérifie
+func (j *JWTService) RevokeToken(token string) error {
+	return j.DB.Create(&models.RevokedToken{
+		Token:     token,
+		RevokedAt: time.Now(),
+	}).Error
+}
+
+func (j *JWTService) isTokenRevoked(token string) bool {
+	var revoked models.RevokedToken
+	err := j.DB.Where("token = ?", token).First(&revoked).Error
+	return err == nil
+}
+
+func (j *JWTService) RevokeRefreshToken(token string) error {
+	refreshToken := models.RefreshToken{}
+	return refreshToken.RevokeRefreshToken(j.DB, token)
+}
+
 func (j *JWTService) VerifyTokenFromContext(ctx context.Context) (map[string]interface{}, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, errors.New("métadonnées manquantes dans le contexte")
 	}
-
 	authHeaders := md["authorization"]
 	if len(authHeaders) == 0 {
 		return nil, errors.New("en-tête Authorization manquant")
 	}
-
-	token := strings.TrimPrefix(authHeaders[0], "Bearer ")
-	if token == "" {
-		return nil, errors.New("token vide ou mal formaté")
-	}
-
-	// Appelle ta méthode de vérification déjà existante
-	return j.VerifyToken(token)
+	return j.VerifyToken(authHeaders[0])
 }
 
 func (j *JWTService) ExtractTokenFromContext(ctx context.Context) (string, error) {
@@ -122,35 +146,19 @@ func (j *JWTService) ExtractTokenFromContext(ctx context.Context) (string, error
 	if !ok {
 		return "", errors.New("aucune métadonnée dans le contexte")
 	}
-
 	authHeaders := md["authorization"]
 	if len(authHeaders) == 0 {
 		return "", errors.New("en-tête Authorization manquant")
 	}
-
 	token := strings.TrimSpace(strings.TrimPrefix(authHeaders[0], "Bearer "))
 	if token == "" {
 		return "", errors.New("token vide après extraction")
 	}
-
 	return token, nil
 }
 
+// Utilitaire : Hash SHA256 du token (utile pour stockage sécurisé si besoin)
 func hashToken(token string) string {
 	sum := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(sum[:])
-}
-
-func (j *JWTService) RevokeToken(token string) error {
-	revoked := models.RevokedToken{
-		Token:     token,
-		RevokedAt: time.Now(),
-	}
-	return j.DB.Create(&revoked).Error
-}
-
-func (j *JWTService) isTokenRevoked(token string) bool {
-	var revoked models.RevokedToken
-	err := j.DB.Where("token = ?", token).First(&revoked).Error
-	return err == nil
 }

@@ -62,7 +62,7 @@ func (g *GalleryGateway) CreateAlbumHandler(w http.ResponseWriter, r *http.Reque
 	// Appel gRPC avec le contexte enrichi
 	res, err := g.GalleryClient.CreateAlbum(ctx, &req)
 	if err != nil {
-		http.Error(w, "Failed to create album: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to create album: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Create album error: %v\n", err)
 		return
 	}
@@ -70,7 +70,7 @@ func (g *GalleryGateway) CreateAlbumHandler(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		log.Printf("Failed to encode response: %v\n", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusUnauthorized)
 	}
 }
 
@@ -97,7 +97,7 @@ func (g *GalleryGateway) GetAlbumsByUserHandler(w http.ResponseWriter, r *http.R
 
 	res, err := g.GalleryClient.GetAlbumsByUser(context.Background(), req)
 	if err != nil {
-		http.Error(w, "Failed to get albums: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to get albums: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Get albums error: %v\n", err)
 		return
 	}
@@ -143,7 +143,7 @@ func (g *GalleryGateway) UpdateAlbumHandler(w http.ResponseWriter, r *http.Reque
 	// Appel gRPC
 	res, err := g.GalleryClient.UpdateAlbum(ctx, &req)
 	if err != nil {
-		http.Error(w, "Failed to update album: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to update album: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Update album error: %v\n", err)
 		return
 	}
@@ -190,7 +190,7 @@ func (g *GalleryGateway) DeleteAlbumHandler(w http.ResponseWriter, r *http.Reque
 
 	res, err := g.GalleryClient.DeleteAlbum(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to delete album: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to delete album: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Delete album error: %v\n", err)
 		return
 	}
@@ -242,7 +242,7 @@ func (g *GalleryGateway) GetPrivateAlbumHandler(w http.ResponseWriter, r *http.R
 
 	res, err := g.GalleryClient.GetPrivateAlbum(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to get album: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to get album: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Get album error: %v\n", err)
 		return
 	}
@@ -250,7 +250,7 @@ func (g *GalleryGateway) GetPrivateAlbumHandler(w http.ResponseWriter, r *http.R
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		log.Printf("Failed to encode response: %v\n", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusUnauthorized)
 	}
 }
 
@@ -291,7 +291,7 @@ func (g *GalleryGateway) AddMediaHandler(w http.ResponseWriter, r *http.Request)
 
 	fileData, err := io.ReadAll(file)
 	if err != nil {
-		http.Error(w, "Failed to read file", http.StatusInternalServerError)
+		http.Error(w, "Failed to read file", http.StatusUnauthorized)
 		return
 	}
 
@@ -314,7 +314,7 @@ func (g *GalleryGateway) AddMediaHandler(w http.ResponseWriter, r *http.Request)
 	// Appel gRPC
 	res, err := g.MediaClient.AddMedia(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to add media: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to add media: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Add media error: %v\n", err)
 		return
 	}
@@ -347,7 +347,7 @@ func (g *GalleryGateway) GetMediaByUserHandler(w http.ResponseWriter, r *http.Re
 
 	res, err := g.MediaClient.GetMediaByUser(context.Background(), req)
 	if err != nil {
-		http.Error(w, "Failed to get media: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to get media: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Get media error: %v\n", err)
 		return
 	}
@@ -394,7 +394,7 @@ func (g *GalleryGateway) MarkAsPrivateHandler(w http.ResponseWriter, r *http.Req
 	}
 	res, err := g.MediaClient.MarkAsPrivate(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to mark as private: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to mark as private: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Mark as private error: %v\n", err)
 		return
 	}
@@ -431,7 +431,7 @@ func (g *GalleryGateway) GetPrivateMediaHandler(w http.ResponseWriter, r *http.R
 	req := &proto.GetPrivateMediaRequest{}
 	res, err := g.MediaClient.GetPrivateMedia(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to get private media: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to get private media: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Get private media error: %v\n", err)
 		return
 	}
@@ -477,7 +477,7 @@ func (g *GalleryGateway) DownloadMediaHandler(w http.ResponseWriter, r *http.Req
 
 	res, err := g.MediaClient.DownloadMedia(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to download media: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to download media: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Download media error: %v\n", err)
 		return
 	}
@@ -531,7 +531,7 @@ func (g *GalleryGateway) DeleteMediaHandler(w http.ResponseWriter, r *http.Reque
 
 	res, err := g.MediaClient.DeleteMedia(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to delete media: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to delete media: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Delete media error: %v\n", err)
 		return
 	}
@@ -539,7 +539,7 @@ func (g *GalleryGateway) DeleteMediaHandler(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		log.Printf("Failed to encode response: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusUnauthorized)
 	}
 }
 
@@ -580,7 +580,7 @@ func (g *GalleryGateway) DetectSimilarMediaHandler(w http.ResponseWriter, r *htt
 
 	res, err := g.MediaClient.DetectSimilarMedia(ctx, &req)
 	if err != nil {
-		http.Error(w, "Failed to detect similar media: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to detect similar media: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Detect similar media error: %v\n", err)
 		return
 	}
@@ -588,7 +588,7 @@ func (g *GalleryGateway) DetectSimilarMediaHandler(w http.ResponseWriter, r *htt
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		log.Printf("Failed to encode response: %v\n", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusUnauthorized)
 	}
 }
 
@@ -604,7 +604,7 @@ func (g *GalleryGateway) CreateUserHandler(w http.ResponseWriter, r *http.Reques
 
 	res, err := g.UserClient.CreateUser(context.Background(), &req)
 	if err != nil {
-		http.Error(w, "Failed to create user: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to create user: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Create user error: %v\n", err)
 		return
 	}
@@ -623,7 +623,7 @@ func (g *GalleryGateway) AddMediaToFavoriteHandler(w http.ResponseWriter, r *htt
 
 	res, err := g.MediaClient.AddMediaToFavorite(context.Background(), &req)
 	if err != nil {
-		http.Error(w, "Failed to add media to favorite: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to add media to favorite: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Add media to favorite error: %v\n", err)
 		return
 	}
@@ -669,7 +669,7 @@ func (g *GalleryGateway) GetMediaByAlbumHandler(w http.ResponseWriter, r *http.R
 	req := &proto.GetMediaByAlbumRequest{AlbumId: uint32(albumID)}
 	res, err := g.MediaClient.GetMediaByAlbum(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to fetch media: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch media: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Get media by album error: %v\n", err)
 		return
 	}
@@ -723,7 +723,7 @@ func (g *GalleryGateway) MoveMediaHandler(w http.ResponseWriter, r *http.Request
 	// Appel gRPC
 	res, err := g.MediaClient.MoveMediaToAlbum(ctx, &req)
 	if err != nil {
-		http.Error(w, "Failed to move media: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to move media: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -765,7 +765,7 @@ func (g *GalleryGateway) AddConsentHandler(w http.ResponseWriter, r *http.Reques
 
 	res, err := g.ConsentClient.AddConsent(ctx, &req)
 	if err != nil {
-		http.Error(w, "Failed to add consent: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to add consent: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Add consent error: %v\n", err)
 		return
 	}
@@ -798,7 +798,7 @@ func (g *GalleryGateway) GetUserConsentsHandler(w http.ResponseWriter, r *http.R
 
 	res, err := g.ConsentClient.GetUserConsents(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to get user consents: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to get user consents: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Get user consents error: %v\n", err)
 		return
 	}
@@ -842,7 +842,7 @@ func (g *GalleryGateway) GetActiveConsentHandler(w http.ResponseWriter, r *http.
 
 	res, err := g.ConsentClient.GetActiveConsent(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to get active consent: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to get active consent: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Get active consent error: %v\n", err)
 		return
 	}
@@ -885,7 +885,7 @@ func (g *GalleryGateway) CheckConsentHandler(w http.ResponseWriter, r *http.Requ
 
 	res, err := g.ConsentClient.CheckConsent(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to check consent: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to check consent: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Check consent error: %v\n", err)
 		return
 	}
@@ -932,7 +932,7 @@ func (g *GalleryGateway) RevokeConsentHandler(w http.ResponseWriter, r *http.Req
 
 	res, err := g.ConsentClient.RevokeConsent(ctx, req)
 	if err != nil {
-		http.Error(w, "Failed to revoke consent: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to revoke consent: "+err.Error(), http.StatusUnauthorized)
 		log.Printf("Revoke consent error: %v\n", err)
 		return
 	}
@@ -971,7 +971,7 @@ func (g *GalleryGateway) SetUserPinHandler(w http.ResponseWriter, r *http.Reques
 
 	res, err := g.UserClient.SetUserPin(ctx, &req)
 	if err != nil {
-		http.Error(w, "Failed to set PIN: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to set PIN: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -1006,7 +1006,7 @@ func (g *GalleryGateway) VerifyUserPinHandler(w http.ResponseWriter, r *http.Req
     resp, err := g.UserClient.VerifyUserPin(ctx, grpcReq)
     if err != nil {
         log.Printf("Erreur gRPC VerifyUserPin: %v", err)
-        http.Error(w, "Erreur lors de la vérification du PIN", http.StatusInternalServerError)
+        http.Error(w, "Erreur lors de la vérification du PIN", http.StatusUnauthorized)
         return
     }
 

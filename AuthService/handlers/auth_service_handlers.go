@@ -68,14 +68,18 @@ func (h *AuthHandlers) LoginWithEmailHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Appeler le service d'authentification
-	token, err := h.AuthService.LoginWithEmail(models.User{Email: req.Email}, req.Password)
+	token, refreshToken, err := h.AuthService.LoginWithEmail(models.User{Email: req.Email}, req.Password)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Erreur lors de la connexion : %v", err), http.StatusUnauthorized)
 		return
 	}
 
 	// Répondre avec le token JWT
-	response := map[string]string{"token": token}
+	response := map[string]string{
+		"Token":        token,
+		"RefreshToken": refreshToken,
+		"Message":      "Login successful",
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
@@ -101,7 +105,7 @@ func (h *AuthHandlers) RegisterWithEmailHandler(w http.ResponseWriter, r *http.R
 	// Appeler le service d'inscription
 	success, err := h.AuthService.RegisterWithEmail(newUser)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Erreur lors de l'inscription : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur lors de l'inscription : %v", err), http.StatusUnauthorized)
 		return
 	}
 
@@ -136,7 +140,7 @@ func (h *AuthHandlers) ForgotPasswordHandler(w http.ResponseWriter, r *http.Requ
 	// Appeler le service ForgotPassword
 	err = h.AuthService.ForgotPassword(req.Email)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Erreur lors de l'envoi de l'email de réinitialisation : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur lors de l'envoi de l'email de réinitialisation : %v", err), http.StatusUnauthorized)
 		return
 	}
 
@@ -169,7 +173,7 @@ func (h *AuthHandlers) ResetPasswordHandler(w http.ResponseWriter, r *http.Reque
 	// Appeler la fonction de service
 	err = h.AuthService.ResetPassword(req.Email, req.Token, req.NewPassword)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -183,7 +187,7 @@ func (h *AuthHandlers) LoginWithGoogleHandler(w http.ResponseWriter, r *http.Req
 	// Appeler AuthenticateWithGoogle pour obtenir l'URL d'authentification
 	authURL, err := h.GoogleAuthService.AuthenticateWithGoogle()
 	if err != nil {
-		http.Error(w, "Échec de l'échange de jeton : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Échec de l'échange de jeton : "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 	// Rediriger l'utilisateur vers l'URL d'authentification Google
@@ -209,14 +213,14 @@ func (h *AuthHandlers) GoogleAuthCallbackHandler(w http.ResponseWriter, r *http.
 	token, err := h.GoogleAuthService.Config.Exchange(oauth2.NoContext, code)
 	// log.Println("Token FOR TEST : ", token)
 	if err != nil {
-		http.Error(w, "Échec de l'échange de jeton : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Échec de l'échange de jeton : "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	// Obtenir le profil utilisateur en utilisant GoogleAuthService
 	userInfo, err := h.GoogleAuthService.GetGoogleUserProfile(token)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -278,7 +282,7 @@ func (h *AuthHandlers) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Appeler le service d'authentification pour la déconnexion
 	err := h.AuthService.Logout(token)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Erreur lors de la déconnexion : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur lors de la déconnexion : %v", err), http.StatusUnauthorized)
 		return
 	}
 

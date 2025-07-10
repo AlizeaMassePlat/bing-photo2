@@ -27,7 +27,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := h.UserService.CreateUser(request.Email, request.Username)
 	if err != nil {
-		http.Error(w, "Failed to create user: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to create user: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 

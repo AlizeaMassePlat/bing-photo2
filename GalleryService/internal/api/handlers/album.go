@@ -30,7 +30,7 @@ func (h *AlbumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.AlbumService.CreateAlbum(album); err != nil {
-		http.Error(w, "Failed to create album: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to create album: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -53,14 +53,14 @@ func (h *AlbumHandler) GetAlbumsByUser(w http.ResponseWriter, r *http.Request) {
 	// Appel du service pour récupérer les albums par user
 	albums, err := h.AlbumService.GetAlbumsByUser(uint(userID))
 	if err != nil {
-		http.Error(w, "Erreur lors de la récupération des albums : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de la récupération des albums : "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	// Encoder la réponse en JSON
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(albums); err != nil {
-		http.Error(w, "Erreur lors de l'encodage de la réponse : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de l'encodage de la réponse : "+err.Error(), http.StatusUnauthorized)
 	}
 }
 
@@ -87,7 +87,7 @@ func (h *AlbumHandler) UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 	// Appeler le service pour mettre à jour l'album
 	err = h.AlbumService.UpdateAlbum(uint(albumID), updateData.Name, updateData.Description)
 	if err != nil {
-		http.Error(w, "Erreur lors de la mise à jour de l'album : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de la mise à jour de l'album : "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -109,7 +109,7 @@ func (h *AlbumHandler) DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 	// Appeler le service pour supprimer l'album
 	err = h.AlbumService.DeleteAlbum(uint(albumID))
 	if err != nil {
-		http.Error(w, "Erreur lors de la suppression de l'album : "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Erreur lors de la suppression de l'album : "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -127,7 +127,7 @@ func (h *AlbumHandler) GetPrivateAlbum(w http.ResponseWriter, r *http.Request) {
 
     album, err := h.AlbumService.GetPrivateAlbum(userID)
     if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        http.Error(w, err.Error(), http.StatusUnauthorized)
         return
     }
 
